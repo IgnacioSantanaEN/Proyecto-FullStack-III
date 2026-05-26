@@ -11,6 +11,7 @@ public class ProductoMapper {
         Producto producto = new Producto();
         producto.setName(dto.getName());
         producto.setSku(dto.getSku());
+        producto.setCategoria(dto.getCategoria());
         producto.setStock(dto.getStock());
         producto.setEstado(dto.getEstado());
         producto.setMarca(dto.getMarca());
@@ -24,6 +25,7 @@ public class ProductoMapper {
         producto.setId(dto.getId());
         producto.setName(dto.getName());
         producto.setSku(dto.getSku());
+        producto.setCategoria(dto.getCategoria());
         producto.setStock(dto.getStock());
         producto.setEstado(dto.getEstado());
         producto.setMarca(dto.getMarca());
@@ -37,10 +39,7 @@ public class ProductoMapper {
         dto.setId(p.getId());
         dto.setName(p.getName());
         dto.setSku(p.getSku());
-        if (p.getCategoriaEntity() != null) {
-            dto.setCategoriaId(p.getCategoriaEntity().getId());
-            dto.setCategoriaNombre(p.getCategoriaEntity().getNombre());
-        }
+        dto.setCategoria(p.getCategoria());
         dto.setStock(p.getStock());
         dto.setEstado(p.getEstado());
         dto.setMarca(p.getMarca());

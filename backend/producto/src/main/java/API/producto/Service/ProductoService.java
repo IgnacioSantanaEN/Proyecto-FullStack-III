@@ -10,9 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import API.producto.DTO.CreateProductoDTO;
 import API.producto.DTO.ProductoDTO;
-import API.producto.Model.Categoria;
 import API.producto.Model.Producto;
-import API.producto.Repository.CategoriaRepository;
 import API.producto.Repository.ProductoRepository;
 
 @Service
@@ -20,8 +18,7 @@ public class ProductoService {
     @Autowired
     private ProductoRepository repository;
 
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    
 
     public List<ProductoDTO> getAll(Integer userId, String role) {
         List<Producto> productos;
@@ -44,10 +41,7 @@ public class ProductoService {
     }
 
     public ProductoDTO create(CreateProductoDTO dto, Integer userId) {
-        Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoría no encontrada"));
         Producto p = ProductoMapper.toEntity(dto);
-        p.setCategoriaEntity(categoria);
         p.setOwnerId(userId);
         Producto saved = repository.save(p);
         return ProductoMapper.toDTO(saved);
@@ -58,10 +52,8 @@ public class ProductoService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
         existing.setName(dto.getName());
         existing.setSku(dto.getSku());
-        if (dto.getCategoriaId() > 0) {
-            Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoría no encontrada"));
-            existing.setCategoriaEntity(categoria);
+        if (dto.getCategoria() != null && !dto.getCategoria().isBlank()) {
+            existing.setCategoria(dto.getCategoria());
         }
         existing.setStock(dto.getStock());
         existing.setEstado(dto.getEstado());
