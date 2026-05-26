@@ -42,13 +42,21 @@ public class PedidoService {
     public PedidoDTO create(CreatePedidoDTO dto, Integer userId) {
         Pedido pedido = PedidoMapper.toEntity(dto);
         pedido.setOwnerId(userId);
-        if (pedido.getOrderNumber() == null || pedido.getOrderNumber().isBlank()) {
+        // Si se proporcionó orderNumber verificar unicidad
+        if (pedido.getOrderNumber() != null && !pedido.getOrderNumber().isBlank()) {
+            Pedido exist = repository.findByOrderNumber(pedido.getOrderNumber());
+            if (exist != null) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Número de pedido ya existe");
+            }
+        } else {
             pedido.setOrderNumber(generateOrderNumber());
         }
+
         Pedido saved = repository.save(pedido);
+        // Asegurar orderNumber consistente si por alguna razón quedó vacío
         if (saved.getOrderNumber() == null || saved.getOrderNumber().isBlank()) {
             saved.setOrderNumber("PED-" + saved.getId());
-            repository.save(saved);
+            saved = repository.save(saved);
         }
         return PedidoMapper.toDTO(saved);
     }
@@ -56,10 +64,16 @@ public class PedidoService {
     public PedidoDTO update(int id, PedidoDTO dto) {
         Pedido existing = repository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no encontrado"));
-        existing.setOrderNumber(dto.getOrderNumber());
+        // Validar si se intenta cambiar orderNumber a uno existente
+        if (dto.getOrderNumber() != null && !dto.getOrderNumber().isBlank()) {
+            Pedido byNumber = repository.findByOrderNumber(dto.getOrderNumber());
+            if (byNumber != null && byNumber.getId() != id) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Número de pedido ya en uso");
+            }
+            existing.setOrderNumber(dto.getOrderNumber());
+        }
         existing.setCliente(dto.getCliente());
         existing.setEstado(dto.getEstado());
-        existing.setFecha(dto.getFecha());
         existing.setMonto(dto.getMonto());
         existing.setItems(dto.getItems());
         Pedido saved = repository.save(existing);
