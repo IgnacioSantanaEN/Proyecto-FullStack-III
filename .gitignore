@@ -16,6 +16,8 @@
 /backend/**/.project
 /backend/**/.factorypath
 /backend/**/log/
+/backend/**/.env
+/backend/Conexion Railway.txt
 
 # General
 .DS_Store
