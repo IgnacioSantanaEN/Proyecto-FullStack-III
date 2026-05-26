@@ -58,7 +58,6 @@ public class UsuarioService {
         UsuarioDTO dto = new UsuarioDTO();
         dto.setId(usuario.getId());
         dto.setName(usuario.getName());
-        dto.setLastname(usuario.getLastname());
         dto.setEmail(usuario.getEmail());
         dto.setRole(usuario.getRole());
         return dto;
@@ -68,7 +67,6 @@ public class UsuarioService {
         if (registro == null) return null;
         Usuario usuario = new Usuario();
         usuario.setName(registro.getName());
-        usuario.setLastname(registro.getLastname());
         usuario.setPassword(registro.getPassword());
         usuario.setEmail(registro.getEmail());
         usuario.setRole(registro.getRole());

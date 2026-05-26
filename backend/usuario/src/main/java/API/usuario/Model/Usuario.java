@@ -29,8 +29,6 @@ public class Usuario {
     private int id;
     @Column(name = "nombre")
     private String name;
-    @Column(name = "apellido")
-    private String lastname;
     @Column(name = "contrasena")
     private String password;
     @Column(name = "email")
@@ -45,7 +43,6 @@ public class Usuario {
     public void getInfo() {
         System.out.println("ID: " + id);
         System.out.println("Nombre: " + name);
-        System.out.println("Apellido: " + lastname);
         System.out.println("Email: " + email);
         System.out.println("Rol: " + role);
     }
