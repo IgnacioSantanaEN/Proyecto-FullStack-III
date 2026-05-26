@@ -1,0 +1,25 @@
+# Frontend
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.env
+/frontend/.env.local
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/pnpm-lock.yaml
+
+# Backend
+/backend/**/target/
+/backend/**/out/
+/backend/**/.settings/
+/backend/**/.classpath
+/backend/**/.project
+/backend/**/.factorypath
+/backend/**/log/
+/backend/**/.env
+/backend/Conexion Railway.txt
+
+# General
+.DS_Store
+.idea/
+.vscode/
