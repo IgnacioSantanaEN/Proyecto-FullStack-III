@@ -42,7 +42,7 @@ public class PedidoController {
     @PostMapping
     public ResponseEntity<PedidoDTO> create(
             @RequestBody CreatePedidoDTO dto,
-            @RequestParam Integer userId
+            @RequestParam(required = false) Integer userId
     ) {
         PedidoDTO created = service.create(dto, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);

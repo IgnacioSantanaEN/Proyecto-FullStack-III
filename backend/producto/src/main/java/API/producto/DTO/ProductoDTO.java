@@ -4,8 +4,7 @@ public class ProductoDTO {
     private int id;
     private String name;
     private String sku;
-    private int categoriaId;
-    private String categoriaNombre;
+    private String categoria;
     private double stock;
     private String estado;
     private String marca;
@@ -35,20 +34,12 @@ public class ProductoDTO {
         this.sku = sku;
     }
 
-    public int getCategoriaId() {
-        return categoriaId;
+    public String getCategoria() {
+        return categoria;
     }
 
-    public void setCategoriaId(int categoriaId) {
-        this.categoriaId = categoriaId;
-    }
-
-    public String getCategoriaNombre() {
-        return categoriaNombre;
-    }
-
-    public void setCategoriaNombre(String categoriaNombre) {
-        this.categoriaNombre = categoriaNombre;
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 
     public double getStock() {

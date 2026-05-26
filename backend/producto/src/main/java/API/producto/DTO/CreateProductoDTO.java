@@ -3,7 +3,7 @@ package API.producto.DTO;
 public class CreateProductoDTO {
     private String name;
     private String sku;
-    private int categoriaId;
+    private String categoria;
     private double stock;
     private String estado;
     private String marca;
@@ -25,12 +25,12 @@ public class CreateProductoDTO {
         this.sku = sku;
     }
 
-    public int getCategoriaId() {
-        return categoriaId;
+    public String getCategoria() {
+        return categoria;
     }
 
-    public void setCategoriaId(int categoriaId) {
-        this.categoriaId = categoriaId;
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 
     public double getStock() {

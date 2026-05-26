@@ -10,4 +10,5 @@ import API.producto.Model.Pedido;
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     List<Pedido> findByOwnerId(Integer ownerId);
+    Pedido findByOrderNumber(String orderNumber);
 }

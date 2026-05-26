@@ -13,7 +13,6 @@ import jakarta.validation.constraints.NotBlank;
 public class UsuarioRegistroDTO {
     @NotBlank(message = "El nombre es obligatorio")
     private String name;
-    private String lastname;
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
     @NotBlank(message = "El email es obligatorio")
