@@ -29,6 +29,6 @@ public class Producto {
     private String marca;
     @Column(name = "precio")
     private double precio;
-    @Column(name = "owner_id")
+    @Column(name = "id_cliente")
     private Integer ownerId;
 }

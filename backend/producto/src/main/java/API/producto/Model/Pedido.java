@@ -25,6 +25,6 @@ public class Pedido {
     private String monto;
     @Column(name = "items")
     private int items;
-    @Column(name = "owner_id")
+    @Column(name = "id_cliente")
     private Integer ownerId;
 }
