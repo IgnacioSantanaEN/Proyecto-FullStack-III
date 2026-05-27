@@ -13,6 +13,8 @@ import {
   BarChart3, Settings, LogOut,
 } from "lucide-react";
 import { theme } from "../../styles/theme";
+import { useEffect, useState } from "react";
+import { getProducts, getOrders } from "../../services/api";
 
 // Mapa de id → ícono (evita guardar componentes en data.js)
 const iconMap = {
@@ -22,8 +24,8 @@ const iconMap = {
 
 const navItems = [
   { id: "dashboard",  label: "Dashboard",     icon: "LayoutDashboard" },
-  { id: "inventario", label: "Inventario",    icon: "Package",        badge: 3 },
-  { id: "pedidos",    label: "Pedidos",       icon: "ShoppingCart",   badge: 5 },
+  { id: "inventario", label: "Inventario",    icon: "Package" },
+  { id: "pedidos",    label: "Pedidos",       icon: "ShoppingCart" },
   { id: "envios",     label: "Envíos",        icon: "Truck" },
   { id: "reportes",   label: "Reportes",      icon: "BarChart3" },
   { id: "config",     label: "Configuración", icon: "Settings" },
@@ -56,7 +58,40 @@ function NavItem({ id, label, icon, badge, active, collapsed, onClick }) {
 }
 
 // ── Sidebar principal ─────────────────────────────────────────
-export default function Sidebar({ open, activePage, onNavigate, onLogout }) {
+export default function Sidebar({ open, activePage, onNavigate, onLogout, user }) {
+  const [criticalCount, setCriticalCount] = useState(0);
+  const [activeOrdersCount, setActiveOrdersCount] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadCounts() {
+      try {
+        const [prods, orders] = await Promise.all([getProducts(user), getOrders(user)]);
+        if (!mounted) return;
+        const prodList = Array.isArray(prods) ? prods : (prods ? [prods] : []);
+        const crit = prodList.filter(p => (p.estado || '').toString().toLowerCase().includes('crit')).length;
+        setCriticalCount(crit);
+
+        const orderList = Array.isArray(orders) ? orders : (orders ? [orders] : []);
+        const active = orderList.filter(o => {
+          const s = (o.estado || '').toString().toLowerCase();
+          return s !== 'entregado' && s !== 'cancelado';
+        }).length;
+        setActiveOrdersCount(active);
+      } catch (e) {
+        // ignore errors, leave badges at 0
+      }
+    }
+    loadCounts();
+    return () => { mounted = false; };
+  }, [user]);
+
+  const itemsWithBadges = navItems.map(item => {
+    if (item.id === 'inventario') return { ...item, badge: criticalCount || undefined };
+    if (item.id === 'pedidos') return { ...item, badge: activeOrdersCount || undefined };
+    return item;
+  });
+
   return (
     <aside
       className={`flex-shrink-0 ${theme.bg.surface} ${theme.border.default}
@@ -79,7 +114,7 @@ export default function Sidebar({ open, activePage, onNavigate, onLogout }) {
 
       {/* Navegación */}
       <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-hidden">
-        {navItems.map((item) => (
+        {itemsWithBadges.map((item) => (
           <NavItem
             key={item.id}
             {...item}

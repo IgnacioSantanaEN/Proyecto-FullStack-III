@@ -1,4 +1,4 @@
-const USER_BASE_URL = import.meta.env.VITE_API_URL_USUARIO || import.meta.env.VITE_API_URL || 'http://localhost:8081';
+const USER_BASE_URL = import.meta.env.VITE_API_URL_USUARIO || import.meta.env.VITE_API_URL || 'http://localhost:8082';
 const PRODUCT_BASE_URL = import.meta.env.VITE_API_URL_PRODUCTO || 'http://localhost:8083';
 
 function buildUserQuery(user) {
@@ -93,6 +93,13 @@ export function createProduct(product, user) {
   return fetchJson(`/api/productos${query}`, {
     method: 'POST',
     body: JSON.stringify(product),
+  }, PRODUCT_BASE_URL);
+}
+
+// Eliminar producto por id
+export function deleteProduct(id) {
+  return fetchJson(`/api/productos/${id}`, {
+    method: 'DELETE',
   }, PRODUCT_BASE_URL);
 }
 

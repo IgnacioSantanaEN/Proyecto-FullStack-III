@@ -9,7 +9,7 @@ import { Truck, RefreshCw, AlertCircle, CheckCircle } from "lucide-react";
 import { cardClass, inputClass } from "../styles/theme";
 import { loginUser, registerUser } from "../services/api";
 
-export default function LoginPage({ onLogin }) {
+export default function LoginPage({ onLogin, onCancel }) {
   const [isRegister, setIsRegister] = useState(false);
   
   // Login state
@@ -18,7 +18,7 @@ export default function LoginPage({ onLogin }) {
   
   // Register state
   const [name, setName] = useState("");
-  const [lastname, setLastname] = useState("");
+  // ya no usamos apellido en la BD
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPass, setRegisterPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
@@ -82,7 +82,7 @@ export default function LoginPage({ onLogin }) {
     setError("");
     setSuccess("");
     
-    if (!name || !lastname || !registerEmail || !registerPass || !confirmPass) {
+    if (!name || !registerEmail || !registerPass || !confirmPass) {
       setError("Completa todos los campos.");
       return;
     }
@@ -106,14 +106,12 @@ export default function LoginPage({ onLogin }) {
     try {
       await registerUser({
         name,
-        lastname,
         email: registerEmail,
         password: registerPass,
         role: "usuario"
       });
       setSuccess("¡Registro exitoso! Ya puedes iniciar sesión.");
       setName("");
-      setLastname("");
       setRegisterEmail("");
       setRegisterPass("");
       setConfirmPass("");
@@ -162,7 +160,14 @@ export default function LoginPage({ onLogin }) {
           </div>
           <p className="text-slate-500 text-sm">Plataforma de gestión logística</p>
         </div>
-
+        {/* Volver al landing si onCancel está presente */}
+        {onCancel && (
+          <div className="mb-4 text-left">
+            <button onClick={onCancel} className="text-slate-400 hover:text-slate-200 text-sm">
+              ← Volver
+            </button>
+          </div>
+        )}
         {/* Formulario */}
         <div className={`${cardClass} p-6 space-y-4`}>
           {/* Header con tabs */}
@@ -258,31 +263,17 @@ export default function LoginPage({ onLogin }) {
           {/* Formulario de Registro */}
           {isRegister && (
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-400 font-medium mb-1.5 block">
-                    Nombre
-                  </label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Juan"
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400 font-medium mb-1.5 block">
-                    Apellido
-                  </label>
-                  <input
-                    type="text"
-                    value={lastname}
-                    onChange={(e) => setLastname(e.target.value)}
-                    placeholder="Pérez"
-                    className={inputClass}
-                  />
-                </div>
+              <div>
+                <label className="text-xs text-slate-400 font-medium mb-1.5 block">
+                  Nombre
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Juan"
+                  className={inputClass}
+                />
               </div>
               <div>
                 <label className="text-xs text-slate-400 font-medium mb-1.5 block">

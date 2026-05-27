@@ -3,11 +3,11 @@ import { cardClass } from '../styles/theme';
 import { registerUser } from '../services/api';
 import ServerBanner from '../components/ui/ServerBanner';
 
-export default function RegisterUserPage({ onNavigate = () => {} }) {
+export default function RegisterUserPage({ onNavigate = () => {}, user = null }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user');
+  const [role, setRole] = useState('usuario');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showBanner, setShowBanner] = useState(true);
@@ -22,7 +22,7 @@ export default function RegisterUserPage({ onNavigate = () => {} }) {
       const payload = { name, email, password, role };
       const res = await registerUser(payload);
       setSuccess('Usuario creado correctamente');
-      setName(''); setEmail(''); setPassword(''); setRole('user');
+      setName(''); setEmail(''); setPassword(''); setRole('usuario');
       // opcional: navegar al listado de usuarios
       setTimeout(() => onNavigate('usuarios'), 900);
     } catch (err) {
@@ -33,6 +33,24 @@ export default function RegisterUserPage({ onNavigate = () => {} }) {
   }
 
   const isConnectionError = error && /conexi[oó]n|No se puede conectar|Failed to fetch|ECONNREFUSED|NetworkError/i.test(error);
+
+  // Si hay un usuario autenticado y no es admin, impedir acceso
+  const userRole = String(user?.role || user?.rol || '').toLowerCase();
+  const isAdmin = userRole === 'admin';
+
+  if (user && !isAdmin) {
+    return (
+      <div className="p-6">
+        <div className={`${cardClass} p-6 max-w-md`}> 
+          <h2 className="text-lg font-semibold text-white">No autorizado</h2>
+          <p className="text-slate-400 mt-2">No tienes permisos para crear usuarios. Contacta a un administrador.</p>
+          <div className="mt-4">
+            <button onClick={()=>onNavigate('usuarios')} className="px-4 py-2 bg-slate-700 text-white rounded">Volver</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -66,7 +84,7 @@ export default function RegisterUserPage({ onNavigate = () => {} }) {
           <div>
             <label className="text-slate-300 text-xs">Rol</label>
             <select value={role} onChange={(e)=>setRole(e.target.value)} className="w-full mt-1 p-2 rounded bg-slate-800 border border-slate-700 text-white">
-              <option value="user">user</option>
+              <option value="usuario">usuario</option>
               <option value="admin">admin</option>
             </select>
           </div>

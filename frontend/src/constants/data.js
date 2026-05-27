@@ -30,18 +30,7 @@ export const estadoEnviosPie = [
   { name: "Cancelados",  value: 5,  color: "#ef4444" },
 ];
 
-export const inventarioData = [
-  { id: 1,  producto: "Notebook Dell XPS 15",    sku: "NB-DELL-001", stock: 45, estado: "Normal",  categoria: "Electrónica" },
-  { id: 2,  producto: 'Monitor LG 27"',           sku: "MN-LG-027",  stock: 8,  estado: "Bajo",    categoria: "Electrónica" },
-  { id: 3,  producto: "Teclado Mecánico Logitech",sku: "KB-LOG-MX",  stock: 23, estado: "Normal",  categoria: "Periféricos" },
-  { id: 4,  producto: "Mouse Inalámbrico",        sku: "MS-WL-002",  stock: 4,  estado: "Crítico", categoria: "Periféricos" },
-  { id: 5,  producto: "Silla Ergonómica Pro",     sku: "CH-ERG-PRO", stock: 12, estado: "Normal",  categoria: "Mobiliario" },
-  { id: 6,  producto: "Escritorio Standing",      sku: "DS-STD-001", stock: 6,  estado: "Bajo",    categoria: "Mobiliario" },
-  { id: 7,  producto: "Auriculares Sony WH",      sku: "HP-SNY-WH1", stock: 31, estado: "Normal",  categoria: "Audio" },
-  { id: 8,  producto: "Webcam Logitech 4K",       sku: "WC-LOG-4K",  stock: 2,  estado: "Crítico", categoria: "Periféricos" },
-  { id: 9,  producto: "Cable HDMI 2m",            sku: "CB-HDMI-2M", stock: 89, estado: "Normal",  categoria: "Cables" },
-  { id: 10, producto: "Hub USB-C 7 puertos",      sku: "HB-USBC-7P", stock: 17, estado: "Normal",  categoria: "Accesorios" },
-];
+export const inventarioData = [];
 
 export const pedidosData = [
   { id: "#PED-0891", orderNumber: "PED-0891", cliente: "Tech Solutions SpA",   estado: "Entregado", fecha: "22 May 2026", monto: "$1.240.000", items: 3 },
@@ -65,7 +54,7 @@ export const enviosData = [
 
 export const navItems = [
   { id: "dashboard",  label: "Dashboard",      icon: "LayoutDashboard" },
-  { id: "inventario", label: "Inventario",     icon: "Package",        badge: 3 },
+  { id: "inventario", label: "Inventario",     icon: "Package" },
   { id: "pedidos",    label: "Pedidos",        icon: "ShoppingCart",   badge: 5 },
   { id: "envios",     label: "Envíos",         icon: "Truck" },
   { id: "reportes",   label: "Reportes",       icon: "BarChart3" },

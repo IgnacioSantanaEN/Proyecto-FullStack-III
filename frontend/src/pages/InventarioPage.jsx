@@ -8,14 +8,12 @@ import { Plus, Search, Edit2, Trash2, AlertTriangle, X } from "lucide-react";
 import Badge                                         from "../components/ui/Badge";
 import { cardClass, btnPrimary, inputClass }        from "../styles/theme";
 import { stockBadgeClass }                          from "../utils/badges";
-import { inventarioData }                           from "../constants/data";
-import { getProducts, getCategories, createProduct } from "../services/api";
+import { getProducts, getCategories, createProduct, deleteProduct } from "../services/api";
 
 const PER_PAGE = 6;
-const STORAGE_KEY = "smartlogix_inventario";
 
 export default function InventarioPage({ user }) {
-  const [inventario, setInventario] = useState(inventarioData);
+  const [inventario, setInventario] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [search, setSearch]           = useState("");
   const [filtro, setFiltro]           = useState("todos"); // "todos" | "bajo"
@@ -24,12 +22,15 @@ export default function InventarioPage({ user }) {
   const [isEditOpen, setIsEditOpen]   = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formError, setFormError]     = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading]         = useState(true);
   const [newProduct, setNewProduct]   = useState({
     producto: "",
     sku: "",
     categoriaId: 0,
     stock: "",
+    marca: "",
+    precio: "",
     estado: "Normal",
   });
 
@@ -54,15 +55,16 @@ export default function InventarioPage({ user }) {
           ]);
         }
 
-        if (productosData && productosData.length > 0) {
-          // Mapear productos desde API al formato esperado
-          const mappedProducts = productosData.map(p => ({
+        if (productosData) {
+          // Aceptar tanto arrays como objetos únicos
+          const list = Array.isArray(productosData) ? productosData : [productosData];
+          const mappedProducts = list.map(p => ({
             id: p.id,
-            producto: p.name,
-            sku: p.sku,
-            categoria: p.categoriaNombre,
-            stock: p.stock,
-            estado: p.estado,
+            producto: p.name || p.nombre || p.producto || "",
+            sku: p.sku || "",
+            categoria: p.categoriaNombre || p.categoria || (p.categoria && p.categoria.nombre) || "",
+            stock: typeof p.stock === 'number' ? p.stock : Number(p.cantidad || p.stock || 0),
+            estado: p.estado || "Normal",
           }));
           setInventario(mappedProducts);
         }
@@ -83,28 +85,14 @@ export default function InventarioPage({ user }) {
     loadData();
   }, []);
 
-  // Cargar desde localStorage como fallback
+  // Asegurarnos de limpiar cualquier inventario almacenado en localStorage
   useEffect(() => {
-    if (inventario.length === 0) {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setInventario(parsed);
-          }
-        } catch (error) {
-          console.warn("Inventario localStorage inválido", error);
-        }
-      }
+    try {
+      localStorage.removeItem("smartlogix_inventario");
+    } catch (e) {
+      // ignore
     }
   }, []);
-
-  useEffect(() => {
-    if (inventario.length > 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(inventario));
-    }
-  }, [inventario]);
 
   const filtered = inventario.filter((p) => {
     const matchText =
@@ -134,6 +122,8 @@ export default function InventarioPage({ user }) {
       sku: "",
       categoriaId: categorias.length > 0 ? categorias[0].id : 0,
       stock: "",
+      marca: "",
+      precio: "",
       estado: "Normal",
     });
     setIsFormOpen(true);
@@ -161,8 +151,15 @@ export default function InventarioPage({ user }) {
       return;
     }
     try {
-      // Eliminar del estado local
+      // Llamar al backend para eliminar el producto
+      await deleteProduct(productId);
+
+      // Actualizar estado local solo después de éxito
       setInventario((current) => current.filter((p) => p.id !== productId));
+
+      // Mensaje de éxito temporal
+      setSuccessMessage('Producto eliminado correctamente.');
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       setFormError("Error al eliminar el producto: " + error.message);
     }
@@ -200,7 +197,10 @@ export default function InventarioPage({ user }) {
 
   async function handleAddProduct(event) {
     event?.preventDefault();
-    const { producto, sku, categoriaId, stock, estado } = newProduct;
+    const { producto, sku, categoriaId, stock, estado, marca, precio } = newProduct;
+    // limpiar mensajes previos
+    setFormError("");
+    setSuccessMessage("");
 
     if (!producto.trim() || !sku.trim() || !categoriaId || !stock.toString().trim() || !estado.trim()) {
       setFormError("Debes completar todos los campos.");
@@ -214,29 +214,43 @@ export default function InventarioPage({ user }) {
     }
 
     try {
+      // obtener nombre de categoría (backend espera `categoria` como texto)
+      const categoriaObj = categorias.find(c => String(c.id) === String(categoriaId));
+      const categoriaNombre = categoriaObj ? (categoriaObj.nombre || categoriaObj.name) : String(categoriaId);
+
       const producto_obj = {
         name: producto.trim(),
         sku: sku.trim(),
-        categoriaId: Number(categoriaId),
+        categoria: categoriaNombre,
         stock: stockValue,
         estado: estado.trim(),
-        marca: "",
-        precio: 0,
+        marca: (marca || "").trim(),
+        precio: Number(precio) || 0,
       };
+
+      // Si no hay user, informar (backend requiere userId)
+      if (!user || !user.id) {
+        throw new Error('Usuario no autenticado: se requiere userId para crear productos.');
+      }
 
       await createProduct(producto_obj, user);
 
       // Recargar productos desde API
-      const updated = await getProducts(user);
-      const mappedProducts = updated.map(p => ({
+      const updated = await getProducts(user) || [];
+      const mappedProducts = (Array.isArray(updated) ? updated : [updated]).map(p => ({
         id: p.id,
         producto: p.name,
         sku: p.sku,
-        categoria: p.categoriaNombre,
+        categoria: p.categoria || p.categoriaNombre,
         stock: p.stock,
         estado: p.estado,
       }));
       setInventario(mappedProducts);
+
+      // Mostrar mensaje de éxito breve
+      setSuccessMessage('Producto añadido correctamente.');
+      setTimeout(() => setSuccessMessage(''), 4000);
+
       setIsFormOpen(false);
     } catch (error) {
       setFormError("Error al guardar el producto: " + error.message);
@@ -430,6 +444,15 @@ export default function InventarioPage({ user }) {
                 />
               </label>
               <label className="space-y-2 text-sm text-slate-300">
+                Marca
+                <input
+                  value={newProduct.marca}
+                  onChange={(e) => handleProductChange("marca", e.target.value)}
+                  className={inputClass}
+                  placeholder="Marca del producto"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-slate-300">
                 Categoría
                 <select
                   value={newProduct.categoriaId}
@@ -451,6 +474,18 @@ export default function InventarioPage({ user }) {
                   type="number"
                   min="0"
                   placeholder="Cantidad en stock"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-slate-300">
+                Precio
+                <input
+                  value={newProduct.precio}
+                  onChange={(e) => handleProductChange("precio", e.target.value)}
+                  className={inputClass}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Precio"
                 />
               </label>
               <label className="space-y-2 text-sm text-slate-300 sm:col-span-2">
@@ -549,6 +584,27 @@ export default function InventarioPage({ user }) {
                   type="number"
                   min="0"
                   placeholder="Cantidad en stock"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-slate-300">
+                Marca
+                <input
+                  value={editingProduct.marca || ""}
+                  onChange={(e) => setEditingProduct({...editingProduct, marca: e.target.value})}
+                  className={inputClass}
+                  placeholder="Marca del producto"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-slate-300">
+                Precio
+                <input
+                  value={editingProduct.precio ?? ''}
+                  onChange={(e) => setEditingProduct({...editingProduct, precio: Number(e.target.value)})}
+                  className={inputClass}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Precio"
                 />
               </label>
               <label className="space-y-2 text-sm text-slate-300 sm:col-span-2">

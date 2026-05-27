@@ -17,13 +17,16 @@ export default function Navbar({ onToggleSidebar, user, onLogout }) {
   // Obtener iniciales del usuario
   const getInitials = () => {
     if (!user) return "??";
-    const initials = `${user.name?.[0] || ""}${user.lastname?.[0] || ""}`.toUpperCase();
+    const name = (user.name || "").trim();
+    if (!name) return "U";
+    // usar primeras dos letras del nombre como iniciales
+    const initials = name.split(" ").map(s=>s[0]||"").slice(0,2).join("").toUpperCase();
     return initials || "U";
   };
   
   const getUserDisplayName = () => {
     if (!user) return "Usuario";
-    return `${user.name || ""} ${user.lastname || ""}`.trim() || "Usuario";
+    return `${user.name || ""}`.trim() || "Usuario";
   };
 
   return (

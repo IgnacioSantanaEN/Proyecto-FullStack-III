@@ -38,6 +38,7 @@ export default function MainLayout({
         open={sidebarOpen}
         activePage={activePage}
         onNavigate={onNavigate}
+        user={user}
         onLogout={onLogout}
       />
 
