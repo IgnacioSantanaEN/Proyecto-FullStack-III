@@ -8,7 +8,7 @@ import { Plus, Search, Edit2, Trash2, AlertTriangle, X } from "lucide-react";
 import Badge                                         from "../components/ui/Badge";
 import { cardClass, btnPrimary, inputClass }        from "../styles/theme";
 import { stockBadgeClass }                          from "../utils/badges";
-import { getProducts, getCategories, createProduct, deleteProduct } from "../services/api";
+import { getProducts, getCategories, createProduct, deleteProduct, updateProduct } from "../services/api";
 
 const PER_PAGE = 6;
 
@@ -24,6 +24,7 @@ export default function InventarioPage({ user }) {
   const [formError, setFormError]     = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading]         = useState(true);
+  const [productHealth, setProductHealth] = useState(null); // null | 'ok' | 'down'
   const [newProduct, setNewProduct]   = useState({
     producto: "",
     sku: "",
@@ -181,11 +182,34 @@ export default function InventarioPage({ user }) {
     }
 
     try {
-      // Actualizar en el estado local
-      setInventario((current) =>
-        current.map((p) => p.id === editingProduct.id ? editingProduct : p)
-      );
-      closeEditProduct();
+      // Llamar al backend para actualizar y recargar productos
+      const payload = {
+        id: editingProduct.id,
+        name: editingProduct.producto,
+        sku: editingProduct.sku,
+        categoria: editingProduct.categoria,
+        stock: Number(editingProduct.stock),
+        estado: editingProduct.estado,
+        marca: editingProduct.marca || null,
+        precio: Number(editingProduct.precio) || 0,
+      };
+
+      await updateProduct(payload);
+
+      // Recargar desde API para reflejar cambios en DB
+      const updated = await getProducts(user) || [];
+        const mappedProducts = (Array.isArray(updated) ? updated : [updated]).map(p => ({
+          id: p.id,
+          producto: p.name || p.nombre || p.producto || "",
+          sku: p.sku || "",
+          categoria: p.categoria || p.categoriaNombre || "",
+          stock: typeof p.stock === 'number' ? p.stock : Number(p.cantidad || p.stock || 0),
+          estado: p.estado || "Normal",
+        }));
+        setInventario(mappedProducts);
+        setSuccessMessage('Producto actualizado correctamente.');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        closeEditProduct();
     } catch (error) {
       setFormError("Error al actualizar el producto: " + error.message);
     }
@@ -278,9 +302,27 @@ export default function InventarioPage({ user }) {
             {inventario.length} productos en sistema
           </p>
         </div>
-        <button className={btnPrimary} onClick={openForm}>
-          <Plus size={16} /> Agregar Producto
-        </button>
+        <div className="flex items-center gap-3">
+          <button className={`px-3 py-2 rounded-md text-sm ${productHealth === 'ok' ? 'bg-green-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+            onClick={async () => {
+              setProductHealth(null);
+              try {
+                await (async () => { const { checkProductHealth } = await import('../services/api'); return checkProductHealth(); })();
+                setProductHealth('ok');
+              } catch (err) {
+                setProductHealth('down');
+              }
+              setTimeout(() => setProductHealth(null), 3000);
+            }}
+            title="Verificar salud del microservicio de productos"
+          >
+            {productHealth === 'ok' ? 'API OK' : productHealth === 'down' ? 'API DOWN' : 'Health'}
+          </button>
+
+          <button className={btnPrimary} onClick={openForm}>
+            <Plus size={16} /> Agregar Producto
+          </button>
+        </div>
       </div>
 
       {/* Barra de herramientas: búsqueda + filtros */}

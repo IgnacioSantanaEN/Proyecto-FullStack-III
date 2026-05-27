@@ -4,16 +4,18 @@
 // Props: onLogin (fn) — callback cuando el login es exitoso
 // ─────────────────────────────────────────────────────────────
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Truck, RefreshCw, AlertCircle, CheckCircle } from "lucide-react";
 import { cardClass, inputClass } from "../styles/theme";
 import { loginUser, registerUser } from "../services/api";
 
-export default function LoginPage({ onLogin, onCancel }) {
+export default function LoginPage({ onLogin, onCancel, initialEmail = "" }) {
   const [isRegister, setIsRegister] = useState(false);
   
   // Login state
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
+  useEffect(() => { if (initialEmail) setEmail(initialEmail); }, [initialEmail]);
+  const [remember, setRemember] = useState(Boolean(initialEmail));
   const [pass, setPass] = useState("");
   
   // Register state
@@ -61,8 +63,16 @@ export default function LoginPage({ onLogin, onCancel }) {
       const userData = await loginUser(email, pass);
       setEmail("");
       setPass("");
-      // Guardar usuario en localStorage
-      localStorage.setItem("user", JSON.stringify(userData));
+      // Guardar email como "remembered" solo si el usuario lo solicitó
+      if (remember) {
+        localStorage.setItem("remembered", JSON.stringify({
+          email: userData.email,
+          name: userData.name,
+          id: userData.id,
+        }));
+      } else {
+        localStorage.removeItem("remembered");
+      }
       onLogin(userData);
     } catch (err) {
       const errorMsg = err.message || "Error al iniciar sesión. Verifica tus credenciales.";
@@ -256,6 +266,10 @@ export default function LoginPage({ onLogin, onCancel }) {
                   onKeyDown={(e) => e.key === "Enter" && handleLoginSubmit()}
                   className={inputClass}
                 />
+                <div className="mt-2 flex items-center gap-2">
+                  <input id="remember" type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="w-4 h-4" />
+                  <label htmlFor="remember" className="text-xs text-slate-400">Recordarme (guardar email)</label>
+                </div>
               </div>
             </div>
           )}

@@ -74,21 +74,23 @@ const GlobalStyles = () => (
 export default function App() {
   const [logged,      setLogged]      = useState(false);
   const [user,        setUser]        = useState(null);
+  const [rememberedEmail, setRememberedEmail] = useState("");
   const [activePage,  setActivePage]  = useState("dashboard");
   const [authView,    setAuthView]    = useState("landing"); // landing | login | register
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [toast,       setToast]       = useState(null);
 
-  // Verificar si hay usuario guardado en localStorage al cargar
+  // Cargar email recordado (si existe) al iniciar — NO hacer autologin
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
+    const remembered = localStorage.getItem("remembered");
+    if (remembered) {
       try {
-        setUser(JSON.parse(savedUser));
-        setLogged(true);
+        const obj = JSON.parse(remembered);
+        setRememberedEmail(obj.email || "");
+        setAuthView('login');
       } catch (e) {
-        console.error("Error al recuperar usuario:", e);
-        localStorage.removeItem("user");
+        console.error("Error al recuperar datos recordados:", e);
+        localStorage.removeItem("remembered");
       }
     }
   }, []);
@@ -122,10 +124,14 @@ export default function App() {
         )}
 
         {authView === 'login' && (
-          <LoginPage onLogin={(userData) => {
-            setUser(userData);
-            setLogged(true);
-          }} onCancel={() => setAuthView('landing')} />
+          <LoginPage
+            initialEmail={rememberedEmail}
+            onLogin={(userData) => {
+              setUser(userData);
+              setLogged(true);
+            }}
+            onCancel={() => setAuthView('landing')}
+          />
         )}
 
         {authView === 'register' && (

@@ -96,6 +96,25 @@ export function createProduct(product, user) {
   }, PRODUCT_BASE_URL);
 }
 
+export function updateProduct(product, user) {
+  if (!product || (product.id == null)) throw new Error('Producto inválido: se requiere id para actualizar.');
+  // El endpoint del microservicio espera PUT /api/productos/{id} con el body del producto
+  return fetchJson(`/api/productos/${product.id}`, {
+    method: 'PUT',
+    body: JSON.stringify(product),
+  }, PRODUCT_BASE_URL);
+}
+
+export async function checkProductHealth() {
+  try {
+    // Llamamos al endpoint de productos (GET) para validar que el servicio responde
+    const res = await fetchJson('/api/productos', {}, PRODUCT_BASE_URL);
+    return { ok: true, info: Array.isArray(res) ? `${res.length} items` : 'respuesta' };
+  } catch (err) {
+    throw new Error(`Producto no disponible: ${err.message}`);
+  }
+}
+
 // Eliminar producto por id
 export function deleteProduct(id) {
   return fetchJson(`/api/productos/${id}`, {
