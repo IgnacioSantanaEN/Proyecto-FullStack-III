@@ -1,0 +1,56 @@
+LEER IMPORTANTE USO DOCKER
+
+Se configuro un archivo docker-compose.yml para levantar contenedeores de microservicios producto y usuario
+
+Ambos dockerfile son multi-stage para copiar código y tambien archivos java
+asi tambien como dependencias de pom.xml
+
+1. Cómo funcionan los Dockerfile (producto / usuario)
+
+    Primera etapa usa maven:3.8.5-eclipse-temurin-17 para compilar
+
+    Segunda etapa usa eclipse-temurin:17-jre-jammy solo para runtime.
+
+    Pasos comunes: FROM (base), WORKDIR, COPY del código, RUN mvn ... en etapa de build
+
+    COPY --from=build /app/target/*.jar app.jar 
+    ( para copiar el JAR ya construido )
+
+    EXPOSE <puerto>, 
+    ENTRYPOINT ["java","-jar","app.jar"].
+
+    Ventaja: reduce tamaño de la imagen final (solo JRE + JAR) y separa compilación de runtime.
+-----------------------------------
+
+Comandos Docker clave
+    Con docker-compose (si existe docker-compose.yml):
+    docker-compose up --build -d
+    docker-compose down
+
+Gestión básica:
+    docker ps (ver contenedeores)
+    docker logs -f <container> (seguir logs)
+    docker exec -it <containter> /bin/sh | /bin/bash (para entrar al contenedor)
+    docker image ls (ver imagenes),
+    docker rm -f <container>, (eliminar contenedor) 
+    docker rmi <image> (eliminar imagen)
+
+Buenas Practicas para Docker:
+    Si su código cambia frecuentemente utilice --build
+    evite exponer credenciales en Dockerfile; use variables de entorno
+    para debug ejecute mvn spring-boot:run localmente si necesita compilar fuera del contenedor.
+
+-----------------------------------
+phpMyAdmin — Nota importante
+
+    URL de acceso: http://localhost:8085
+    Conexión (en la pantalla de phpMyAdmin):
+    Servidor / Host: db (o el host del contenedor MySQL/MariaDB según docker-compose)
+    Usuario: root
+    Password: root
+
+-----------------------------------
+Esta configuración permite visualizar
+la base de datos en phpMyAdmin
+(asegúrate de que el servicio de BD esté corriendo y
+que phpMyAdmin esté conectado a la misma red/servicio).

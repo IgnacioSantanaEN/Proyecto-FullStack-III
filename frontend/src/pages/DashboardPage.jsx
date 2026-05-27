@@ -16,12 +16,12 @@ import StatCard from "../components/ui/StatCard";
 import Badge    from "../components/ui/Badge";
 import { cardClass, chartTooltipStyle } from "../styles/theme";
 import { estadoBadgeClass }             from "../utils/badges";
-import {
-  pedidosDia, crecimientoMensual, estadoEnviosPie, pedidosData,
-} from "../constants/data";
+import { useEffect, useState } from "react";
+import { getOrders, getProducts } from "../services/api";
+import ServerBanner from "../components/ui/ServerBanner";
 
 // ── Subcomponente: gráfico de área (Pedidos y Envíos) ─────────
-function ChartPedidosSemana() {
+function ChartPedidosSemana({ pedidosDia = [] }) {
   return (
     <div className={`${cardClass} p-5 lg:col-span-2`}>
       <div className="flex items-center justify-between mb-4">
@@ -63,7 +63,7 @@ function ChartPedidosSemana() {
 }
 
 // ── Subcomponente: donut de estado de envíos ──────────────────
-function ChartEstadoEnvios() {
+function ChartEstadoEnvios({ estadoEnviosPie = [] }) {
   return (
     <div className={`${cardClass} p-5`}>
       <h3 className="text-white font-semibold mb-1">Estado Envíos</h3>
@@ -99,7 +99,7 @@ function ChartEstadoEnvios() {
 }
 
 // ── Subcomponente: gráfico de barras mensual ──────────────────
-function ChartCrecimientoMensual() {
+function ChartCrecimientoMensual({ crecimientoMensual = [] }) {
   return (
     <div className={`${cardClass} p-5`}>
       <div className="flex items-center justify-between mb-4">
@@ -132,7 +132,7 @@ function ChartCrecimientoMensual() {
 }
 
 // ── Subcomponente: tabla de pedidos recientes ─────────────────
-function TablaPedidosRecientes() {
+function TablaPedidosRecientes({ pedidos = [], loading = false, error = null }) {
   return (
     <div className={`${cardClass} p-5`}>
       <div className="flex items-center justify-between mb-4">
@@ -154,17 +154,30 @@ function TablaPedidosRecientes() {
             </tr>
           </thead>
           <tbody>
-            {pedidosData.slice(0, 5).map((p) => (
-              <tr key={p.id} className="border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors">
-                <td className="py-3 pr-4 text-blue-400 font-mono text-xs font-medium">{p.id}</td>
-                <td className="py-3 pr-4 text-white">{p.cliente}</td>
-                <td className="py-3 pr-4">
-                  <Badge label={p.estado} className={estadoBadgeClass(p.estado)} />
-                </td>
-                <td className="py-3 pr-4 text-slate-400 text-xs">{p.fecha}</td>
-                <td className="py-3 text-white font-medium">{p.monto}</td>
-              </tr>
-            ))}
+            {loading && (
+              <tr><td colSpan={5} className="py-6 text-center text-slate-400">Cargando pedidos...</td></tr>
+            )}
+            {!loading && error && (
+              <tr><td colSpan={5} className="py-6 text-center text-rose-400">Error: {String(error)}</td></tr>
+            )}
+            {!loading && !error && pedidos.slice(0, 5).map((p) => {
+              const id = p.id || p._id || p.codigo || "-";
+              const cliente = p.cliente || (p.usuario && (p.usuario.nombre || p.usuario.name)) || p.customer || "-";
+              const estado = p.estado || p.status || p.state || "Desconocido";
+              const fecha = p.fecha || p.createdAt || p.date || "-";
+              const monto = p.monto || p.total || p.amount || "-";
+              return (
+                <tr key={id} className="border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors">
+                  <td className="py-3 pr-4 text-blue-400 font-mono text-xs font-medium">{id}</td>
+                  <td className="py-3 pr-4 text-white">{cliente}</td>
+                  <td className="py-3 pr-4">
+                    <Badge label={estado} className={estadoBadgeClass(estado)} />
+                  </td>
+                  <td className="py-3 pr-4 text-slate-400 text-xs">{new Date(fecha).toLocaleString()}</td>
+                  <td className="py-3 text-white font-medium">{typeof monto === 'number' ? `$${monto}` : monto}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -174,6 +187,112 @@ function TablaPedidosRecientes() {
 
 // ── Página principal ──────────────────────────────────────────
 export default function DashboardPage() {
+  const [pedidos, setPedidos] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showServerError, setShowServerError] = useState(true);
+
+  async function fetchData() {
+    setLoading(true);
+    try {
+      const [o, p] = await Promise.all([getOrders(), getProducts()]);
+      setPedidos(Array.isArray(o) ? o : (o.content || []));
+      setProducts(Array.isArray(p) ? p : (p.content || []));
+      setError(null);
+    } catch (err) {
+      setError(err.message || String(err));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    let mounted = true;
+    if (mounted) fetchData();
+    return () => { mounted = false; };
+  }, []);
+
+  // Helpers para agregados simples
+  const safeDate = (d) => {
+    const date = d ? new Date(d) : null;
+    return date && !isNaN(date) ? date : null;
+  };
+
+  const pedidosHoy = pedidos.filter((o) => {
+    const dt = safeDate(o.fecha || o.createdAt || o.date);
+    if (!dt) return false;
+    const today = new Date();
+    return dt.toDateString() === today.toDateString();
+  }).length;
+
+  const stockBajo = products.filter((prod) => {
+    const stock = prod.stock ?? prod.cantidad ?? prod.quantity ?? 0;
+    return typeof stock === 'number' && stock <= 5;
+  }).length;
+
+  const enviosActivos = pedidos.filter((o) => {
+    const st = (o.estado || o.status || "").toString().toLowerCase();
+    return st.includes("en") || st.includes("transito") || st.includes("shipping") || st.includes("sent") || st.includes("shipped");
+  }).length;
+
+  const entregasHoy = pedidos.filter((o) => {
+    const st = (o.estado || o.status || "").toString().toLowerCase();
+    const dt = safeDate(o.fechaEntrega || o.entregadoEn || o.deliveryDate || o.date);
+    if (!dt) return false;
+    const today = new Date();
+    return dt.toDateString() === today.toDateString() || st.includes("delivered") || st.includes("entregado");
+  }).length;
+
+  // Agregaciones para gráficos (sencillas)
+  const pedidosDia = (() => {
+    const days = Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return { dia: d.toLocaleDateString(), pedidos: 0, envios: 0 };
+    });
+    pedidos.forEach((o) => {
+      const dt = safeDate(o.fecha || o.createdAt || o.date);
+      if (!dt) return;
+      const idx = days.findIndex((day) => new Date(day.dia).toDateString() === dt.toDateString());
+      if (idx >= 0) {
+        days[idx].pedidos += 1;
+        const st = (o.estado || o.status || "").toString().toLowerCase();
+        if (st.includes("en") || st.includes("transito") || st.includes("shipped")) days[idx].envios += 1;
+      }
+    });
+    return days;
+  })();
+
+  const estadoEnviosPie = (() => {
+    const counts = {};
+    pedidos.forEach((o) => {
+      const st = (o.estado || o.status || "Desconocido").toString();
+      counts[st] = (counts[st] || 0) + 1;
+    });
+    const colors = ["#22c55e", "#3b82f6", "#f97316", "#ef4444", "#a78bfa"];
+    return Object.keys(counts).map((k, i) => ({ name: k, value: Math.round((counts[k] / Math.max(1, pedidos.length)) * 100), color: colors[i % colors.length] }));
+  })();
+
+  const crecimientoMensual = (() => {
+    const byMonth = Array.from({ length: 12 }).map((_, i) => ({ mes: new Date(0, i).toLocaleString(undefined, { month: 'short' }), ingresos: 0 }));
+    pedidos.forEach((o) => {
+      const dt = safeDate(o.fecha || o.createdAt || o.date);
+      const monto = Number(o.total ?? o.monto ?? o.amount ?? 0) || 0;
+      if (!dt) return;
+      const m = dt.getMonth();
+      byMonth[m].ingresos += monto;
+    });
+    return byMonth;
+  })();
+
+  const isConnectionError = error && /conexi[oó]n|No se puede conectar|Failed to fetch|ECONNREFUSED|NetworkError/i.test(error);
+
+  const handleRetry = () => {
+    setShowServerError(true);
+    fetchData();
+  };
+
   return (
     <div className="space-y-6">
       {/* Encabezado */}
@@ -184,25 +303,32 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      <ServerBanner
+        error={error}
+        visible={isConnectionError && showServerError}
+        onClose={() => setShowServerError(false)}
+        onRetry={handleRetry}
+      />
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={ShoppingCart} label="Pedidos hoy"    value="120" delta={12}  color="bg-blue-600"   sub="vs. 107 ayer" />
-        <StatCard icon={Package}      label="Stock bajo"     value="14"  delta={-3}  color="bg-amber-500"  sub="productos en alerta" />
-        <StatCard icon={Truck}        label="Envíos activos" value="37"  delta={8}   color="bg-violet-600" sub="en tránsito ahora" />
-        <StatCard icon={CheckCircle}  label="Entregas hoy"   value="85"  delta={15}  color="bg-emerald-600" sub="completadas" />
+        <StatCard icon={ShoppingCart} label="Pedidos hoy"    value={String(pedidosHoy)} delta={0}  color="bg-blue-600"   sub="vs. día anterior" />
+        <StatCard icon={Package}      label="Stock bajo"     value={String(stockBajo)}  delta={0}  color="bg-amber-500"  sub="productos en alerta (<=5)" />
+        <StatCard icon={Truck}        label="Envíos activos" value={String(enviosActivos)}  delta={0}   color="bg-violet-600" sub="en tránsito ahora" />
+        <StatCard icon={CheckCircle}  label="Entregas hoy"   value={String(entregasHoy)}  delta={0}  color="bg-emerald-600" sub="completadas" />
       </div>
 
       {/* Gráficos superiores */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ChartPedidosSemana />
-        <ChartEstadoEnvios />
+        <ChartPedidosSemana pedidosDia={pedidosDia} />
+        <ChartEstadoEnvios estadoEnviosPie={estadoEnviosPie} />
       </div>
 
       {/* Gráfico de crecimiento */}
-      <ChartCrecimientoMensual />
+      <ChartCrecimientoMensual crecimientoMensual={crecimientoMensual} />
 
       {/* Tabla de pedidos */}
-      <TablaPedidosRecientes />
+      <TablaPedidosRecientes pedidos={pedidos} loading={loading} error={error} />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 const USER_BASE_URL = import.meta.env.VITE_API_URL_USUARIO || import.meta.env.VITE_API_URL || 'http://localhost:8081';
-const PRODUCT_BASE_URL = import.meta.env.VITE_API_URL_PRODUCTO || 'http://localhost:8080';
+const PRODUCT_BASE_URL = import.meta.env.VITE_API_URL_PRODUCTO || 'http://localhost:8083';
 
 function buildUserQuery(user) {
   if (!user) return "";
@@ -62,6 +62,13 @@ export async function registerUser(userData) {
     method: 'POST',
     body: JSON.stringify(userData),
   }, USER_BASE_URL);
+}
+
+// ========== USUARIOS ==========
+
+export function getUsers(query = '') {
+  const path = `/api/users${query}`;
+  return fetchJson(path, {}, USER_BASE_URL);
 }
 
 // ========== VERIFICAR SALUD DEL SERVIDOR ==========

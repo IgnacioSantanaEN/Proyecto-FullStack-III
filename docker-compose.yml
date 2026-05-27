@@ -1,0 +1,69 @@
+services:
+  usuario: # Servicio de microservicio de usuario
+    build: ./backend/usuario
+    image: proyecto-usuario:local
+    ports:
+      - "8082:8082"
+    container_name: ms-usuario
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/bd
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    restart: unless-stopped
+    depends_on:
+      - db
+  producto: # Servicio de microservicio de producto
+    build: ./backend/producto
+    image: proyecto-producto:local
+    ports:
+      - "8083:8083"
+    container_name: ms-producto
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/bd
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    restart: unless-stopped
+    depends_on:
+      - db
+  db: # Servicio de base de datos MySQL
+    image: mysql:8.0
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: bd
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+  phpmyadmin: # Servicio de phpMyAdmin para gestionar la base de datos
+    image: phpmyadmin:latest
+    container_name: phpmyadmin-1
+    environment:
+      - PMA_ARBITRARY=1
+      #PMA_HOST: db
+      #PMA_USER: root
+      #PMA_PASSWORD: root
+    ports:
+      - "8085:80"
+    restart: unless-stopped
+    depends_on:
+      - db
+
+# Opcional: si quieres añadir el frontend como servicio, descomenta la sección siguiente y ajústala.
+#  frontend:
+#    build: ./frontend
+#    image: proyecto-frontend:local
+#    ports:
+#      - "5173:5173"
+#    environment:
+#      - VITE_API_URL_USUARIO=http://usuario:8082
+#      - VITE_API_URL_PRODUCTO=http://producto:8083
+#    depends_on:
+#      - usuario
+#      - producto
+
+volumes:
+  db_data:

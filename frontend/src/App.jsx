@@ -27,6 +27,8 @@ import PedidosPage    from "./pages/PedidosPage";
 import EnviosPage     from "./pages/EnviosPage";
 import ReportesPage   from "./pages/ReportesPage";
 import ConfigPage     from "./pages/ConfigPage";
+import UserPage       from "./pages/UserPage";
+import RegisterUserPage from "./pages/RegisterUserPage";
 
 // ── Mapa de rutas → componentes ───────────────────────────────
 const PAGE_MAP = {
@@ -36,6 +38,8 @@ const PAGE_MAP = {
   envios:     EnviosPage,
   reportes:   ReportesPage,
   config:     ConfigPage,
+  usuarios:   UserPage,
+  registrar:  RegisterUserPage,
 };
 
 // ── Estilos globales (fuente + scrollbar + animaciones) ───────
@@ -130,7 +134,7 @@ export default function App() {
           localStorage.removeItem("user");
         }}
       >
-        <PageComponent user={user} />
+        <PageComponent user={user} onNavigate={setActivePage} />
       </MainLayout>
     </>
   );

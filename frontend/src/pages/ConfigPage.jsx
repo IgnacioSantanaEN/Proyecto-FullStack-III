@@ -13,7 +13,7 @@ const secciones = [
   { title: "Notificaciones",      desc: "Alertas y avisos",          icon: Bell      },
 ];
 
-export default function ConfigPage() {
+export default function ConfigPage({ onNavigate = () => {} }) {
   return (
     <div className="space-y-5">
       <div>
@@ -22,22 +22,26 @@ export default function ConfigPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {secciones.map(({ title, desc, icon: Icon }) => (
-          <div
-            key={title}
-            className={`${cardClass} p-5 flex items-center gap-4
-                        hover:border-slate-600 transition-colors cursor-pointer`}
-          >
-            <div className="p-2.5 bg-slate-700/60 rounded-xl">
-              <Icon size={18} className="text-slate-400" />
+        {secciones.map(({ title, desc, icon: Icon }) => {
+          const isUsuarios = title.toLowerCase().includes('usuarios');
+          return (
+            <div
+              key={title}
+              onClick={() => isUsuarios ? onNavigate('usuarios') : null}
+              className={`${cardClass} p-5 flex items-center gap-4
+                          hover:border-slate-600 transition-colors cursor-pointer`}
+            >
+              <div className="p-2.5 bg-slate-700/60 rounded-xl">
+                <Icon size={18} className="text-slate-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-white font-medium">{title}</p>
+                <p className="text-slate-500 text-xs">{desc}</p>
+              </div>
+              <ChevronRight size={16} className="text-slate-600" />
             </div>
-            <div className="flex-1">
-              <p className="text-white font-medium">{title}</p>
-              <p className="text-slate-500 text-xs">{desc}</p>
-            </div>
-            <ChevronRight size={16} className="text-slate-600" />
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
