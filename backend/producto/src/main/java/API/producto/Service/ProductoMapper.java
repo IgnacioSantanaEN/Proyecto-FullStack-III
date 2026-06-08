@@ -6,6 +6,7 @@ import API.producto.Model.Producto;
 
 public class ProductoMapper {
 
+    // Método para convertir de CreateProductoDTO a Producto (útil para creación)
     public static Producto toEntity(CreateProductoDTO dto) {
         if (dto == null) return null;
         Producto producto = new Producto();
@@ -19,6 +20,7 @@ public class ProductoMapper {
         return producto;
     }
 
+    // Método para convertir de ProductoDTO a Producto (útil para update)
     public static Producto toEntity(ProductoDTO dto) {
         if (dto == null) return null;
         Producto producto = new Producto();
@@ -33,6 +35,7 @@ public class ProductoMapper {
         return producto;
     }
 
+    // Método para convertir de Producto a ProductoDTO
     public static ProductoDTO toDTO(Producto p) {
         if (p == null) return null;
         ProductoDTO dto = new ProductoDTO();

@@ -18,6 +18,7 @@ public class ProductoService {
     @Autowired
     private ProductoRepository repository;
 
+    // Método para obtener todos los productos, con filtrado por usuario y rol
     public List<ProductoDTO> getAll(Integer userId, String role) {
         List<Producto> productos;
         if (role != null && role.equalsIgnoreCase("admin")) {
@@ -32,12 +33,14 @@ public class ProductoService {
                 .collect(Collectors.toList());
     }
 
+    // Método para obtener un producto por su ID
     public ProductoDTO getById(int id) {
         Producto p = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
         return ProductoMapper.toDTO(p);
     }
 
+    // Método para crear un nuevo producto usando CreateProductoDTO
     public ProductoDTO create(CreateProductoDTO dto, Integer userId) {
         Producto p = ProductoMapper.toEntity(dto);
         p.setOwnerId(userId);
@@ -45,6 +48,7 @@ public class ProductoService {
         return ProductoMapper.toDTO(saved);
     }
 
+    // Método para actualizar un producto existente por su ID
     public ProductoDTO update(int id, ProductoDTO dto) {
         Producto existing = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
@@ -61,6 +65,7 @@ public class ProductoService {
         return ProductoMapper.toDTO(saved);
     }
 
+    // Método para eliminar un producto por su ID
     public void delete(int id) {
         if (!repository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado");
