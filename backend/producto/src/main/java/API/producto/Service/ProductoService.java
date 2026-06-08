@@ -18,8 +18,6 @@ public class ProductoService {
     @Autowired
     private ProductoRepository repository;
 
-    
-
     public List<ProductoDTO> getAll(Integer userId, String role) {
         List<Producto> productos;
         if (role != null && role.equalsIgnoreCase("admin")) {

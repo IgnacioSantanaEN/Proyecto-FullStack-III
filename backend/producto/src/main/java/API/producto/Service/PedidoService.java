@@ -49,15 +49,15 @@ public class PedidoService {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Número de pedido ya existe");
             }
         } else {
-            pedido.setOrderNumber(generateOrderNumber());
+            // Generar un número de pedido único antes de guardar
+            String candidate;
+            do {
+                candidate = generateOrderNumber();
+            } while (repository.findByOrderNumber(candidate) != null);
+            pedido.setOrderNumber(candidate);
         }
 
         Pedido saved = repository.save(pedido);
-        // Asegurar orderNumber consistente si por alguna razón quedó vacío
-        if (saved.getOrderNumber() == null || saved.getOrderNumber().isBlank()) {
-            saved.setOrderNumber("PED-" + saved.getId());
-            saved = repository.save(saved);
-        }
         return PedidoMapper.toDTO(saved);
     }
 
