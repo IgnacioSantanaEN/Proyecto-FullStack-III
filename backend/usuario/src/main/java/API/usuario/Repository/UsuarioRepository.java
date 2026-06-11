@@ -1,12 +1,10 @@
 package API.usuario.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import API.usuario.Model.Usuario;
 
 /* Repositorio para la entidad Usuario */
-@Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     /* Funcion para encontrar por email teniendo como argumento el elemento email de Usuario */
     public Usuario findByEmail(String email);

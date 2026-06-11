@@ -2,7 +2,6 @@ package API.usuario.Service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,9 +16,12 @@ import API.usuario.DTO.LoginDTO;
 @Service
 public class UsuarioService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
     
+    public UsuarioService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
+
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public List<Usuario> getAllUsuarios() {
@@ -54,23 +56,11 @@ public class UsuarioService {
     }
 
     public UsuarioDTO toDTO(Usuario usuario) {
-        if (usuario == null) return null;
-        UsuarioDTO dto = new UsuarioDTO();
-        dto.setId(usuario.getId());
-        dto.setName(usuario.getName());
-        dto.setEmail(usuario.getEmail());
-        dto.setRole(usuario.getRole());
-        return dto;
+        return UsuarioMapper.toDTO(usuario);
     }
 
     public Usuario fromRegistroDTO(UsuarioRegistroDTO registro) {
-        if (registro == null) return null;
-        Usuario usuario = new Usuario();
-        usuario.setName(registro.getName());
-        usuario.setPassword(registro.getPassword());
-        usuario.setEmail(registro.getEmail());
-        usuario.setRole(registro.getRole());
-        return usuario;
+        return UsuarioMapper.fromRegistroDTO(registro);
     }
 
     public UsuarioDTO getUsuarioDTOById(int id) {
