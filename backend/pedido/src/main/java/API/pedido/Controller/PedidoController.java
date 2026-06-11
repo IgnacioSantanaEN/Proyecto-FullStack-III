@@ -2,7 +2,6 @@ package API.pedido.Controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +18,12 @@ import API.pedido.Service.PedidoService;
 @RestController
 @RequestMapping("/api/pedidos")
 public class PedidoController {
-    @Autowired
-    private PedidoService pedidoService;
+    
+    private final PedidoService pedidoService;
+
+    public PedidoController(PedidoService pedidoService) {
+        this.pedidoService = pedidoService;
+    }
 
     @GetMapping
     public ResponseEntity<List<PedidoDTO>> getAllPedidos() {

@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import API.pedido.DTO.PedidoDTO;
@@ -14,8 +13,12 @@ import API.pedido.Repository.PedidoRepository;
 
 @Service
 public class PedidoService {
-    @Autowired
-    private PedidoRepository pedidoRepository;
+    
+    private final PedidoRepository pedidoRepository;
+
+    public PedidoService(PedidoRepository pedidoRepository) {
+        this.pedidoRepository = pedidoRepository;
+    }
 
     // Métodos CRUD para Pedido
     public ResponseEntity<List<PedidoDTO>> getAllPedidos() {
