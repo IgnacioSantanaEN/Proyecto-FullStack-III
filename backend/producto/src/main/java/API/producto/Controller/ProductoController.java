@@ -2,7 +2,6 @@ package API.producto.Controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,8 +22,11 @@ import API.producto.Service.ProductoService;
 @RequestMapping("/api/productos")
 public class ProductoController {
 
-    @Autowired
-    private ProductoService service;
+    private final ProductoService service;
+
+    public ProductoController(ProductoService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public List<ProductoDTO> listAll(

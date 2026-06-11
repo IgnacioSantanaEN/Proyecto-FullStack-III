@@ -3,7 +3,6 @@ package API.producto.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,10 +12,18 @@ import API.producto.DTO.ProductoDTO;
 import API.producto.Model.Producto;
 import API.producto.Repository.ProductoRepository;
 
+// Ya no se inyecta por campo con @Autowired,
+//  sino por constructor
 @Service
 public class ProductoService {
-    @Autowired
-    private ProductoRepository repository;
+
+    // Inyección del repositorio de productos
+    private final ProductoRepository repository;
+
+    // Constructor para inyectar el repositorio
+    public ProductoService(ProductoRepository repository) {
+        this.repository = repository;
+    }
 
     // Método para obtener todos los productos, con filtrado por usuario y rol
     public List<ProductoDTO> getAll(Integer userId, String role) {
