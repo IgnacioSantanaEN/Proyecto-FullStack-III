@@ -96,4 +96,13 @@ public class UsuarioService {
         
         return toDTO(usuario);
     }
+
+    public boolean isHealthy() {
+        try {
+            usuarioRepository.count();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

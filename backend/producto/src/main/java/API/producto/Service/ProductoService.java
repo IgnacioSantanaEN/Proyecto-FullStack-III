@@ -76,4 +76,13 @@ public class ProductoService {
         repository.deleteById(id);
     }
 
+    public boolean isHealthy() {
+        try {
+            repository.count();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }
