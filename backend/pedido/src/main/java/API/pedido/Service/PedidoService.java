@@ -3,10 +3,13 @@ package API.pedido.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+
 import API.pedido.DTO.PedidoDTO;
 import API.pedido.Model.Pedido;
 import API.pedido.Repository.PedidoRepository;
 
+@Service
 public class PedidoService {
     
     private final PedidoRepository pedidoRepository;
