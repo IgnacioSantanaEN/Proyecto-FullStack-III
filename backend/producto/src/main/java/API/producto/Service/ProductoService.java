@@ -12,6 +12,8 @@ import API.producto.DTO.ProductoDTO;
 import API.producto.Model.Producto;
 import API.producto.Repository.ProductoRepository;
 
+// Ya no se inyecta por campo con @Autowired,
+//  sino por constructor
 @Service
 public class ProductoService {
     
