@@ -24,10 +24,6 @@ public class UsuarioService {
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
-    }
-
     public List<Usuario> getAllUsuarios() {
         return usuarioRepository.findAll();
     }
