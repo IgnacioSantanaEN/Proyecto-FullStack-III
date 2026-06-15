@@ -21,7 +21,7 @@ import API.usuario.Service.UsuarioService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/usuario")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -30,7 +30,7 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-    @GetMapping("/users")
+    @GetMapping
     public List<UsuarioDTO> getUsuarios() {
         return usuarioService.getAllUsuarios()
                 .stream()
@@ -38,7 +38,7 @@ public class UsuarioController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<UsuarioDTO> getUsuarioById(@PathVariable int id) {
         try {
             UsuarioDTO dto = usuarioService.getUsuarioDTOById(id);
@@ -49,7 +49,7 @@ public class UsuarioController {
     }
 
     /* POST Usuario usando DTO resuelto */
-    @PostMapping("/users")
+    @PostMapping
     public ResponseEntity<?> createUsuario(@Valid @RequestBody UsuarioRegistroDTO registroDTO) {
         try {
             Usuario savedUsuario = usuarioService.saveUsuarioDesdeDTO(registroDTO);
@@ -60,7 +60,7 @@ public class UsuarioController {
         }
     }
 
-    @PutMapping("/users/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<UsuarioDTO> updateUsuario(@PathVariable int id, @Valid @RequestBody Usuario usuarioDetails) {
         try {
             Usuario updatedUsuario = usuarioService.updateUsuarioById(id, usuarioDetails);
@@ -71,7 +71,7 @@ public class UsuarioController {
         }
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUsuario(@PathVariable int id) {
         usuarioService.deleteUsuario(id);
         return ResponseEntity.noContent().build();

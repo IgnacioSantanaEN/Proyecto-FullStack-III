@@ -19,7 +19,7 @@ import API.producto.DTO.ProductoDTO;
 import API.producto.Service.ProductoService;
 
 @RestController
-@RequestMapping("/api/productos")
+@RequestMapping("/api/producto")
 public class ProductoController {
 
     private final ProductoService service;
@@ -51,11 +51,11 @@ public class ProductoController {
         return service.getById(id);
     }
 
-    @PostMapping
-    public ResponseEntity<ProductoDTO> create(
+        @PostMapping
+        public ResponseEntity<ProductoDTO> create(
             @RequestBody CreateProductoDTO dto,
             @RequestParam Integer userId
-    ) {
+        ) {
         ProductoDTO created = service.create(dto, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
