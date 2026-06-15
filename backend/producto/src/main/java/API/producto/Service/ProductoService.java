@@ -16,11 +16,9 @@ import API.producto.Repository.ProductoRepository;
 //  sino por constructor
 @Service
 public class ProductoService {
-
-    // Inyección del repositorio de productos
+    
     private final ProductoRepository repository;
 
-    // Constructor para inyectar el repositorio
     public ProductoService(ProductoRepository repository) {
         this.repository = repository;
     }
@@ -78,6 +76,15 @@ public class ProductoService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado");
         }
         repository.deleteById(id);
+    }
+
+    public boolean isHealthy() {
+        try {
+            repository.count();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }

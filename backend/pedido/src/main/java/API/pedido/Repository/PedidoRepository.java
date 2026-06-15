@@ -4,11 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import API.pedido.Model.Pedido;
 
-public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
-    public Pedido findById(int id);
-
-    public Pedido findByStatus(String status);
-
-    public Pedido findByidCliente(int id_owner);
+public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
 
 }

@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class PedidoDTO {
-    private String orderNumber;
-    private String name;
+    private int orderNumber;
+    private String client;
     private String status;
-    private int monto;
+    private String monto;
     private int items;
-    private int id_owner;
+    private int idCliente;
 }

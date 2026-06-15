@@ -28,6 +28,16 @@ public class ProductoController {
         this.service = service;
     }
 
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        boolean ok = service.isHealthy();
+        if (ok) {
+            return ResponseEntity.ok("La conexión es estable, Producto API!");
+        } else {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Conexión a la base de datos no disponible");
+        }
+    }
+
     @GetMapping
     public List<ProductoDTO> listAll(
             @RequestParam(required = false) Integer userId,

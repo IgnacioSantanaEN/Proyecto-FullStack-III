@@ -8,23 +8,23 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-@Data
 @Entity
+@Data
 @Table(name = "pedido")
 public class Pedido {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name = "id_pedido")
-    private String orderNumber;
+    @Column(name = "n_pedido")
+    private int orderNumber;
     @Column(name = "nom_cli")
-    private String cliente;
+    private String client;
     @Column(name = "estado")
-    private String estado;
+    private String status;
     @Column(name = "monto")
-    private int monto;
+    private String monto;
     @Column(name = "items")
     private int items;
     @Column(name = "id_cliente")
-    private int id_owner;
+    private int idCliente;
 }

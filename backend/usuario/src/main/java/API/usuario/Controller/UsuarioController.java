@@ -24,7 +24,6 @@ import jakarta.validation.Valid;
 @RequestMapping("/api")
 public class UsuarioController {
 
-    
     private final UsuarioService usuarioService;
 
     public UsuarioController(UsuarioService usuarioService) {
@@ -92,7 +91,12 @@ public class UsuarioController {
     /* Endpoint de prueba para verificar que el servidor está corriendo */
     @GetMapping("/health")
     public ResponseEntity<?> health() {
-        return ResponseEntity.ok(new ErrorResponse("El servidor de usuarios está en línea"));
+        boolean ok = usuarioService.isHealthy();
+        if (ok) {
+            return ResponseEntity.ok(new ErrorResponse("El servidor de usuarios está en línea"));
+        } else {
+            return ResponseEntity.status(503).body(new ErrorResponse("Conexión a la base de datos no disponible"));
+        }
     }
 
     /* Clase interna para respuesta de error */
