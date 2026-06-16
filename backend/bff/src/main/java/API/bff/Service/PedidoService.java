@@ -22,11 +22,11 @@ public class PedidoService {
     }
 
     public Object crearPedido(Object dto) {
-        return pedidoClient.crearPedido((API.bff.DTO.Integration.PedidoDTO) dto);
+        return pedidoClient.crearPedido((API.bff.DTO.Integration.Pedido.BFFPedidoDTO) dto);
     }
 
     public Object actualizarPedido(int id, Object dto) {
-        return pedidoClient.actualizarPedido(id, (API.bff.DTO.Integration.PedidoDTO) dto);
+        return pedidoClient.actualizarPedido(id, (API.bff.DTO.Integration.Pedido.BFFPedidoDTO) dto);
     }
 
     public Object eliminarPedido(int id) {

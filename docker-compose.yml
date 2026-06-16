@@ -27,6 +27,39 @@ services:
     restart: unless-stopped
     depends_on:
       - db
+  
+  pedido: # Servicio de microservicio de pedido
+    build: ./backend/pedido
+    image: proyecto-pedido:local
+    ports:
+      - "8084:8084"
+    container_name: ms-pedido
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/bd
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  bff: # Backend-for-frontend
+    build: ./backend/bff
+    image: proyecto-bff:local
+    ports:
+      - "8086:8086"
+    container_name: ms-bff
+    environment:
+      - SERVICES_USUARIO_URL=http://usuario:8082/api
+      - SERVICES_PRODUCTO_URL=http://producto:8083/api
+      - SERVICES_PEDIDO_URL=http://pedido:8084/api
+    restart: unless-stopped
+    depends_on:
+      - db
+      - usuario
+      - producto
+      - pedido
+
   db: # Servicio de base de datos MySQL
     image: mysql:8.0
     container_name: db
@@ -36,7 +69,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data_nuevo:/var/lib/mysql
     restart: unless-stopped
   phpmyadmin: # Servicio de phpMyAdmin para gestionar la base de datos
     image: phpmyadmin:latest
@@ -66,4 +99,4 @@ services:
 #      - producto
 
 volumes:
-  db_data:
+  db_data_nuevo:

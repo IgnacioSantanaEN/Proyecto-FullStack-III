@@ -4,10 +4,10 @@ WORKDIR /app
 
 # Copiar solo el pom.xml y el código fuente desde la carpeta del bff
 COPY pom.xml .
-COPY src ./src
+RUN mvn dependency:go-offline -B
 
-# Descargar dependencias y construir el paquete (sin tests para acelerar)
-RUN mvn -B -DskipTests package
+COPY src ./src
+RUN mvn clean package -DskipTests
 
 # Runtime stage: ejecutar con Eclipse Temurin JDK 17
 FROM eclipse-temurin:17-jdk
@@ -19,5 +19,4 @@ COPY --from=build /app/target/*.jar app.jar
 # Puerto típico para Spring Boot
 EXPOSE 8086
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-
+ENTRYPOINT ["java", "-jar", "app.jar"]

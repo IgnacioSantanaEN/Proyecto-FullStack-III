@@ -11,7 +11,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import API.bff.DTO.Integration.PedidoDTO;
+import API.bff.DTO.Integration.Pedido.BFFPedidoDTO;
 
 @Component
 public class PedidoClient {
@@ -22,22 +22,22 @@ public class PedidoClient {
         this.restClient = restClient;
     }
 
-    public List<PedidoDTO> obtenerTodosLosPedidos() {
-        PedidoDTO[] pedidos = restClient.get()
+    public List<BFFPedidoDTO> obtenerTodosLosPedidos() {
+        BFFPedidoDTO[] pedidos = restClient.get()
                 .uri("/pedido")
                 .retrieve()
-                .body(PedidoDTO[].class);
+                .body(BFFPedidoDTO[].class);
         return pedidos != null ? Arrays.asList(pedidos) : List.of();
     }
 
-    public PedidoDTO obtenerPedidoPorId(int id) {
+    public BFFPedidoDTO obtenerPedidoPorId(int id) {
         return restClient.get()
                 .uri("/pedido/{id}", id)
                 .retrieve()
-                .body(PedidoDTO.class);
+                .body(BFFPedidoDTO.class);
     }
 
-    public PedidoDTO crearPedido(PedidoDTO dto) {
+    public BFFPedidoDTO crearPedido(BFFPedidoDTO dto) {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("orderNumber", String.valueOf(dto.getOrderNumber()));
         formData.add("client", dto.getClient());
@@ -51,10 +51,10 @@ public class PedidoClient {
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(formData)
                 .retrieve()
-                .body(PedidoDTO.class);
+                .body(BFFPedidoDTO.class);
     }
 
-    public PedidoDTO actualizarPedido(int id, PedidoDTO dto) {
+    public BFFPedidoDTO actualizarPedido(int id, BFFPedidoDTO dto) {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("orderNumber", String.valueOf(dto.getOrderNumber()));
         formData.add("client", dto.getClient());
@@ -69,7 +69,7 @@ public class PedidoClient {
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(formData)
                 .retrieve()
-                .body(PedidoDTO.class);
+                .body(BFFPedidoDTO.class);
         } catch (HttpClientErrorException.NotFound e) {
             return null;
         }

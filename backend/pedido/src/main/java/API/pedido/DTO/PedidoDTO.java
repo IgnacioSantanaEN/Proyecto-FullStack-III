@@ -7,7 +7,7 @@ public class PedidoDTO {
     private int orderNumber;
     private String client;
     private String status;
-    private String monto;
+    private double total;
     private int items;
     private int idCliente;
 }

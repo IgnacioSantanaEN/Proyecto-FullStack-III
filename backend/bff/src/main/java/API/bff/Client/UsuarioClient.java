@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import API.bff.DTO.Integration.UsuarioDTO;
+import API.bff.DTO.Integration.Usuario.BFFLoginDTO;
+import API.bff.DTO.Integration.Usuario.BFFRegistroDTO;
+import API.bff.DTO.Integration.Usuario.BFFUsuarioDTO;
 
 @Component
 public class UsuarioClient {
@@ -20,44 +22,58 @@ public class UsuarioClient {
         this.restClient = restClient;
     }
 
+    public BFFUsuarioDTO login(BFFLoginDTO dto) {
+        try {
+            return restClient.post()
+                    .uri("/usuario/auth/login")
+                    .body(dto)
+                    .retrieve()
+                    .body(BFFUsuarioDTO.class);
+        } catch (HttpClientErrorException.Unauthorized e) {
+            return null; // Login fallido
+        } catch (HttpClientErrorException.NotFound e) {
+            return null; // Usuario no encontrado
+        }
+    }
+
     // GET: Obtener todos los usuarios
-    public List<UsuarioDTO> obtenerTodosLosUsuarios() {
-        UsuarioDTO[] usuarios = restClient.get()
-                .uri("/usuario") // endpoint singular español en el microservicio de usuarios
+    public List<BFFUsuarioDTO> obtenerTodosLosUsuarios() {
+        BFFUsuarioDTO[] usuarios = restClient.get()
+                .uri("/usuario")
                 .retrieve()
-                .body(UsuarioDTO[].class);
+                .body(BFFUsuarioDTO[].class);
         return usuarios != null ? Arrays.asList(usuarios) : List.of();
     }
 
     // GET: Obtener usuario por ID
-    public UsuarioDTO obtenerUsuarioPorId(int id) {
+    public BFFUsuarioDTO obtenerUsuarioPorId(int id) {
         try {
             return restClient.get()
                     .uri("/usuario/{id}", id)
                     .retrieve()
-                    .body(UsuarioDTO.class);
+                    .body(BFFUsuarioDTO.class);
         } catch (HttpClientErrorException.NotFound e) {
             return null;
         }
     }
 
     // POST: Crear Usuario (Envía JSON automáticamente)
-    public UsuarioDTO crearUsuario(UsuarioDTO dto) {
+    public BFFUsuarioDTO crearUsuario(BFFRegistroDTO dto) {
         return restClient.post()
                 .uri("/usuario")
                 .body(dto) // Spring lo transforma a JSON gracias al header global
                 .retrieve()
-                .body(UsuarioDTO.class);
+                .body(BFFUsuarioDTO.class);
     }
 
     // PUT: Actualizar Usuario
-    public UsuarioDTO actualizarUsuario(int id, UsuarioDTO dto) {
+    public BFFUsuarioDTO actualizarUsuario(int id, BFFUsuarioDTO dto) {
         try {
             return restClient.put()
                     .uri("/usuario/{id}", id)
                     .body(dto)
                     .retrieve()
-                    .body(UsuarioDTO.class);
+                    .body(BFFUsuarioDTO.class);
         } catch (HttpClientErrorException.NotFound e) {
             return null;
         }
