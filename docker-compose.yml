@@ -42,22 +42,22 @@ services:
     depends_on:
       - db
 
-#  bff: # Backend-for-frontend
-#    build: ./backend/bff
-#   image: proyecto-bff:local
-#    ports:
-#      - "8086:8086"
-#    container_name: ms-bff
-#    environment:
+  bff: # Backend-for-frontend
+    build: ./backend/bff
+    image: proyecto-bff:local
+    ports:
+      - "8086:8086"
+    container_name: ms-bff
+    environment:
 #      - SERVICES_USUARIO_URL=http://usuario:8082/api
 #     - SERVICES_PRODUCTO_URL=http://producto:8083/api
-#      - SERVICES_PEDIDO_URL=http://pedido:8084/api
-#    restart: unless-stopped
-#    depends_on:
-#      - db
+      - SERVICES_PEDIDO_URL=http://pedido:8084/api
+    restart: unless-stopped
+    depends_on:
+      - db
 #      - usuario
 #      - producto
-#      - pedido
+      - pedido
 
   db: # Servicio de base de datos MySQL
     image: mysql:8.0
