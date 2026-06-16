@@ -22,7 +22,7 @@ public class Pedido {
     @Column(name = "estado")
     private String status;
     @Column(name = "monto")
-    private double total;
+    private Double total;
     @Column(name = "items")
     private int items;
     @Column(name = "id_cliente")
