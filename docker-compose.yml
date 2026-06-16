@@ -49,14 +49,12 @@ services:
       - "8086:8086"
     container_name: ms-bff
     environment:
-#      - SERVICES_USUARIO_URL=http://usuario:8082/api
-#     - SERVICES_PRODUCTO_URL=http://producto:8083/api
+      - SERVICES_USUARIO_URL=http://usuario:8082/api
       - SERVICES_PEDIDO_URL=http://pedido:8084/api
     restart: unless-stopped
     depends_on:
       - db
-#      - usuario
-#      - producto
+      - usuario
       - pedido
 
   db: # Servicio de base de datos MySQL
