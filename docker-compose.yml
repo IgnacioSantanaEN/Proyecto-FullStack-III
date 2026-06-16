@@ -68,6 +68,7 @@ services:
     volumes:
       - db_data_nuevo:/var/lib/mysql
     restart: unless-stopped
+    
   phpmyadmin: # Servicio de phpMyAdmin para gestionar la base de datos
     image: phpmyadmin:latest
     container_name: phpmyadmin-1
@@ -81,19 +82,6 @@ services:
     restart: unless-stopped
     depends_on:
       - db
-
-# Opcional: si quieres añadir el frontend como servicio, descomenta la sección siguiente y ajústala.
-#  frontend:
-#    build: ./frontend
-#    image: proyecto-frontend:local
-#    ports:
-#      - "5173:5173"
-#    environment:
-#      - VITE_API_URL_USUARIO=http://usuario:8082
-#      - VITE_API_URL_PRODUCTO=http://producto:8083
-#    depends_on:
-#      - usuario
-#      - producto
 
 volumes:
   db_data_nuevo:

@@ -3,7 +3,8 @@ package API.bff.Client;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
@@ -18,8 +19,8 @@ public class UsuarioClient {
     private final RestClient restClient;
 
     // Inyectamos el bean configurado específicamente para usuarios
-    public UsuarioClient(@Qualifier("usuarioRestClient") RestClient restClient) {
-        this.restClient = restClient;
+    public UsuarioClient(RestClient.Builder builder, @Value("${services.usuario.url}") String usuarioUrl) {
+        this.restClient = builder.baseUrl(usuarioUrl).build();
     }
 
     public BFFUsuarioDTO login(BFFLoginDTO dto) {
@@ -39,7 +40,7 @@ public class UsuarioClient {
     // GET: Obtener todos los usuarios
     public List<BFFUsuarioDTO> obtenerTodosLosUsuarios() {
         BFFUsuarioDTO[] usuarios = restClient.get()
-                .uri("/usuario")
+                .uri("/api/usuario")
                 .retrieve()
                 .body(BFFUsuarioDTO[].class);
         return usuarios != null ? Arrays.asList(usuarios) : List.of();
@@ -49,7 +50,7 @@ public class UsuarioClient {
     public BFFUsuarioDTO obtenerUsuarioPorId(int id) {
         try {
             return restClient.get()
-                    .uri("/usuario/{id}", id)
+                    .uri("/api/usuario/{id}", id)
                     .retrieve()
                     .body(BFFUsuarioDTO.class);
         } catch (HttpClientErrorException.NotFound e) {
@@ -60,7 +61,8 @@ public class UsuarioClient {
     // POST: Crear Usuario (Envía JSON automáticamente)
     public BFFUsuarioDTO crearUsuario(BFFRegistroDTO dto) {
         return restClient.post()
-                .uri("/usuario")
+                .uri("/api/usuario")
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(dto) // Spring lo transforma a JSON gracias al header global
                 .retrieve()
                 .body(BFFUsuarioDTO.class);
@@ -70,7 +72,7 @@ public class UsuarioClient {
     public BFFUsuarioDTO actualizarUsuario(int id, BFFUsuarioDTO dto) {
         try {
             return restClient.put()
-                    .uri("/usuario/{id}", id)
+                    .uri("/api/usuario/{id}", id)
                     .body(dto)
                     .retrieve()
                     .body(BFFUsuarioDTO.class);
@@ -83,7 +85,7 @@ public class UsuarioClient {
     public boolean eliminarUsuario(int id) {
         try {
             restClient.delete()
-                    .uri("/usuario/{id}", id)
+                    .uri("/api/usuario/{id}", id)
                     .retrieve()
                     .toBodilessEntity();
             return true;
