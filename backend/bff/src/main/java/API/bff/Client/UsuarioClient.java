@@ -3,12 +3,15 @@ package API.bff.Client;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import API.bff.DTO.Integration.UsuarioDTO;
+import API.bff.DTO.Integration.Usuario.BFFLoginDTO;
+import API.bff.DTO.Integration.Usuario.BFFRegistroDTO;
+import API.bff.DTO.Integration.Usuario.BFFUsuarioDTO;
 
 @Component
 public class UsuarioClient {
@@ -16,48 +19,63 @@ public class UsuarioClient {
     private final RestClient restClient;
 
     // Inyectamos el bean configurado específicamente para usuarios
-    public UsuarioClient(@Qualifier("usuarioRestClient") RestClient restClient) {
-        this.restClient = restClient;
+    public UsuarioClient(RestClient.Builder builder, @Value("${services.usuario.url}") String usuarioUrl) {
+        this.restClient = builder.baseUrl(usuarioUrl).build();
+    }
+
+    public BFFUsuarioDTO login(BFFLoginDTO dto) {
+        try {
+            return restClient.post()
+                    .uri("/usuario/auth/login")
+                    .body(dto)
+                    .retrieve()
+                    .body(BFFUsuarioDTO.class);
+        } catch (HttpClientErrorException.Unauthorized e) {
+            return null; // Login fallido
+        } catch (HttpClientErrorException.NotFound e) {
+            return null; // Usuario no encontrado
+        }
     }
 
     // GET: Obtener todos los usuarios
-    public List<UsuarioDTO> obtenerTodosLosUsuarios() {
-        UsuarioDTO[] usuarios = restClient.get()
-                .uri("/usuario") // endpoint singular español en el microservicio de usuarios
+    public List<BFFUsuarioDTO> obtenerTodosLosUsuarios() {
+        BFFUsuarioDTO[] usuarios = restClient.get()
+                .uri("/api/usuario")
                 .retrieve()
-                .body(UsuarioDTO[].class);
+                .body(BFFUsuarioDTO[].class);
         return usuarios != null ? Arrays.asList(usuarios) : List.of();
     }
 
     // GET: Obtener usuario por ID
-    public UsuarioDTO obtenerUsuarioPorId(int id) {
+    public BFFUsuarioDTO obtenerUsuarioPorId(int id) {
         try {
             return restClient.get()
-                    .uri("/usuario/{id}", id)
+                    .uri("/api/usuario/{id}", id)
                     .retrieve()
-                    .body(UsuarioDTO.class);
+                    .body(BFFUsuarioDTO.class);
         } catch (HttpClientErrorException.NotFound e) {
             return null;
         }
     }
 
     // POST: Crear Usuario (Envía JSON automáticamente)
-    public UsuarioDTO crearUsuario(UsuarioDTO dto) {
+    public BFFUsuarioDTO crearUsuario(BFFRegistroDTO dto) {
         return restClient.post()
-                .uri("/usuario")
+                .uri("/api/usuario")
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(dto) // Spring lo transforma a JSON gracias al header global
                 .retrieve()
-                .body(UsuarioDTO.class);
+                .body(BFFUsuarioDTO.class);
     }
 
     // PUT: Actualizar Usuario
-    public UsuarioDTO actualizarUsuario(int id, UsuarioDTO dto) {
+    public BFFUsuarioDTO actualizarUsuario(int id, BFFUsuarioDTO dto) {
         try {
             return restClient.put()
-                    .uri("/usuario/{id}", id)
+                    .uri("/api/usuario/{id}", id)
                     .body(dto)
                     .retrieve()
-                    .body(UsuarioDTO.class);
+                    .body(BFFUsuarioDTO.class);
         } catch (HttpClientErrorException.NotFound e) {
             return null;
         }
@@ -67,7 +85,7 @@ public class UsuarioClient {
     public boolean eliminarUsuario(int id) {
         try {
             restClient.delete()
-                    .uri("/usuario/{id}", id)
+                    .uri("/api/usuario/{id}", id)
                     .retrieve()
                     .toBodilessEntity();
             return true;

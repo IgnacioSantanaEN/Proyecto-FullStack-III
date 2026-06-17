@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,7 +42,7 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PedidoDTO> getPedidoById(int id) {
+    public ResponseEntity<PedidoDTO> getPedidoById(@PathVariable int id) {
         PedidoDTO pedido = pedidoService.getPedidoById(id);
         if (pedido == null) {
             return ResponseEntity.notFound().build();
@@ -49,13 +51,13 @@ public class PedidoController {
     }
 
     @PostMapping
-    public ResponseEntity<PedidoDTO> createPedido(PedidoDTO pedidoDTO) {
+    public ResponseEntity<PedidoDTO> createPedido(@RequestBody PedidoDTO pedidoDTO) {
         PedidoDTO createdPedido = pedidoService.createPedido(pedidoDTO);
         return ResponseEntity.ok(createdPedido);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PedidoDTO> updatePedido(int id, PedidoDTO pedidoDTO) {
+    public ResponseEntity<PedidoDTO> updatePedido(@PathVariable int id, @RequestBody PedidoDTO pedidoDTO) {
         PedidoDTO updatedPedido = pedidoService.updatePedido(id, pedidoDTO);
         if (updatedPedido == null) {
             return ResponseEntity.notFound().build();
@@ -64,7 +66,7 @@ public class PedidoController {
     }
 
      @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePedido(int id) {
+    public ResponseEntity<Void> deletePedido(@PathVariable int id) {
         boolean deleted = pedidoService.deletePedido(id);
         if (!deleted) {
             return ResponseEntity.notFound().build();

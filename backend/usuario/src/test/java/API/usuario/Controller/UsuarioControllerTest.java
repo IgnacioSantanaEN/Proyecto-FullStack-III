@@ -46,7 +46,7 @@ public class UsuarioControllerTest {
         when(usuarioService.getAllUsuarios()).thenReturn(Arrays.asList(u1));
         when(usuarioService.toDTO(u1)).thenReturn(dto1);
 
-        mockMvc.perform(get("/api/users")
+        mockMvc.perform(get("/api/usuario")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray()) 
@@ -63,7 +63,7 @@ public class UsuarioControllerTest {
 
         when(usuarioService.getUsuarioDTOById(1)).thenReturn(dto);
 
-        mockMvc.perform(get("/api/users/1"))
+        mockMvc.perform(get("/api/usuario/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("John Doe"))
                 .andExpect(jsonPath("$.email").value("john@mail.com"));
@@ -74,7 +74,7 @@ public class UsuarioControllerTest {
         when(usuarioService.getUsuarioDTOById(99))
                 .thenThrow(new RuntimeException("Not found"));
 
-        mockMvc.perform(get("/api/users/99"))
+        mockMvc.perform(get("/api/usuario/99"))
                 .andExpect(status().isNotFound()); 
     }
 
@@ -96,7 +96,7 @@ public class UsuarioControllerTest {
         when(usuarioService.saveUsuarioDesdeDTO(any(UsuarioRegistroDTO.class))).thenReturn(usuarioCreado);
         when(usuarioService.toDTO(usuarioCreado)).thenReturn(dtoResultado);
 
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/usuario")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registroDTO))) 
                 .andExpect(status().isOk())

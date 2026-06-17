@@ -10,7 +10,7 @@ public class PedidoMapper {
         dto.setOrderNumber(pedido.getOrderNumber());
         dto.setClient(pedido.getClient());
         dto.setStatus(pedido.getStatus());
-        dto.setMonto(pedido.getMonto());
+        dto.setTotal(pedido.getTotal());
         dto.setItems(pedido.getItems());
         dto.setIdCliente(pedido.getIdCliente());
         return dto;
@@ -21,7 +21,7 @@ public class PedidoMapper {
         pedido.setOrderNumber(pedidoDTO.getOrderNumber());
         pedido.setClient(pedidoDTO.getClient());
         pedido.setStatus(pedidoDTO.getStatus());
-        pedido.setMonto(pedidoDTO.getMonto());
+        pedido.setTotal(pedidoDTO.getTotal());
         pedido.setItems(pedidoDTO.getItems());
         pedido.setIdCliente(pedidoDTO.getIdCliente());
         return pedido;

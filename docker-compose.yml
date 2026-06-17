@@ -1,43 +1,16 @@
 services:
-  usuario: # Servicio de microservicio de usuario
-    build: ./backend/usuario
-    image: proyecto-usuario:local
-    ports:
-      - "8082:8082"
-    container_name: ms-usuario
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/bd
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-    restart: unless-stopped
-    depends_on:
-      - db
-  producto: # Servicio de microservicio de producto
-    build: ./backend/producto
-    image: proyecto-producto:local
-    ports:
-      - "8083:8083"
-    container_name: ms-producto
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/bd
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-    restart: unless-stopped
-    depends_on:
-      - db
   db: # Servicio de base de datos MySQL
-    image: mysql:8.0
+    image: mysql:latest
     container_name: db
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: bd
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=bd
     ports:
       - "3306:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data_nuevo:/var/lib/mysql
     restart: unless-stopped
+
   phpmyadmin: # Servicio de phpMyAdmin para gestionar la base de datos
     image: phpmyadmin:latest
     container_name: phpmyadmin-1
@@ -52,18 +25,66 @@ services:
     depends_on:
       - db
 
-# Opcional: si quieres añadir el frontend como servicio, descomenta la sección siguiente y ajústala.
-#  frontend:
-#    build: ./frontend
-#    image: proyecto-frontend:local
+  usuario: # Servicio de microservicio de usuario
+    build: ./backend/usuario
+    image: proyecto-usuario:local
+    ports:
+      - "8082:8082"
+    container_name: ms-usuario
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/bd
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    restart: unless-stopped
+    depends_on:
+      - db
+
+#  producto: # Servicio de microservicio de producto
+#    build: ./backend/producto
+#    image: proyecto-producto:local
 #    ports:
-#      - "5173:5173"
+#      - "8083:8083"
+#    container_name: ms-producto
 #    environment:
-#      - VITE_API_URL_USUARIO=http://usuario:8082
-#      - VITE_API_URL_PRODUCTO=http://producto:8083
+#      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/bd
+#      - SPRING_DATASOURCE_USERNAME=root
+#      - SPRING_DATASOURCE_PASSWORD=root
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+#    restart: unless-stopped
 #    depends_on:
-#      - usuario
-#      - producto
+#      - db:
+#        condition: service_healthy
+
+  pedido: # Servicio de microservicio de pedido
+    build: ./backend/pedido
+    image: proyecto-pedido:local
+    ports:
+      - "8084:8084"
+    container_name: ms-pedido
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/bd
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  bff: # Backend-for-frontend
+    build: ./backend/bff
+    image: proyecto-bff:local
+    ports:
+      - "8086:8086"
+    container_name: ms-bff
+    environment:
+      - SERVICES_USUARIO_URL=http://ms-usuario:8082
+      - SERVICES_PEDIDO_URL=http://ms-pedido:8084
+    restart: unless-stopped
+    depends_on:
+      - db
+      - usuario
+      - pedido
 
 volumes:
-  db_data:
+  db_data_nuevo:

@@ -1,23 +1,23 @@
-# Build stage: compile the application with Maven using Eclipse Temurin JDK 17
-FROM maven:3.9.4-eclipse-temurin-17 AS build
+# Etapa 1: Construcción optimizada usando JDK liviano de Alpine
+FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 
-# Copiar solo el pom.xml y el código fuente desde la carpeta del bff
-COPY pom.xml .
+# Copiar el Wrapper y el pom primero para congelar las dependencias en el caché
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw
+
+# Descarga las dependencias en segundo plano (0 segundos si no cambia el pom.xml)
+RUN ./mvnw dependency:go-offline -B
+
+# Recién aquí copiamos tu código fuente
 COPY src ./src
+RUN ./mvnw clean package -DskipTests
 
-# Descargar dependencias y construir el paquete (sin tests para acelerar)
-RUN mvn -B -DskipTests package
-
-# Runtime stage: ejecutar con Eclipse Temurin JDK 17
-FROM eclipse-temurin:17-jdk
+# Etapa 2: Imagen final ultra-liviana de ejecución (JRE Alpine ocupa ~100MB)
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-
-# Copiar el artefacto empaquetado desde la etapa de build
 COPY --from=build /app/target/*.jar app.jar
 
-# Puerto típico para Spring Boot
 EXPOSE 8086
-
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-
+ENTRYPOINT ["java", "-jar", "app.jar"]
