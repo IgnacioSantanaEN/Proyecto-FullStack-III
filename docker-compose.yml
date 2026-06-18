@@ -40,21 +40,21 @@ services:
     depends_on:
       - db
 
-#  producto: # Servicio de microservicio de producto
-#    build: ./backend/producto
-#    image: proyecto-producto:local
-#    ports:
-#      - "8083:8083"
-#    container_name: ms-producto
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/bd
-#      - SPRING_DATASOURCE_USERNAME=root
-#      - SPRING_DATASOURCE_PASSWORD=root
-#      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-#    restart: unless-stopped
-#    depends_on:
-#      - db:
-#        condition: service_healthy
+  producto: # Servicio de microservicio de producto
+    build: ./backend/producto
+    image: proyecto-producto:local
+    ports:
+      - "8083:8083"
+    container_name: ms-producto
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/bd
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    restart: unless-stopped
+    depends_on:
+      - db
+
 
   pedido: # Servicio de microservicio de pedido
     build: ./backend/pedido
@@ -78,13 +78,15 @@ services:
       - "8086:8086"
     container_name: ms-bff
     environment:
-      - SERVICES_USUARIO_URL=http://ms-usuario:8082
-      - SERVICES_PEDIDO_URL=http://ms-pedido:8084
+      - MICROSERVICIO_USUARIO_URL=http://ms-usuario:8082
+      - MICROSERVICIO_PEDIDO_URL=http://ms-pedido:8084
+      - MICROSERVICIO_PRODUCTO_URL=http://ms-producto:8083
     restart: unless-stopped
     depends_on:
       - db
       - usuario
       - pedido
+      - producto
 
 volumes:
   db_data_nuevo:

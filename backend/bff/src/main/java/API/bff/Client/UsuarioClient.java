@@ -19,7 +19,7 @@ public class UsuarioClient {
     private final RestClient restClient;
 
     // Inyectamos el bean configurado específicamente para usuarios
-    public UsuarioClient(RestClient.Builder builder, @Value("${services.usuario.url}") String usuarioUrl) {
+    public UsuarioClient(RestClient.Builder builder, @Value("${microservicio.usuario.url}") String usuarioUrl) {
         this.restClient = builder.baseUrl(usuarioUrl).build();
     }
 
