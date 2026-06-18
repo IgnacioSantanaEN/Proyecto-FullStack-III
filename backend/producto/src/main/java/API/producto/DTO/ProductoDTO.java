@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class ProductoDTO {
-    private int id;
     private String name;
     private String sku;
     private String categoria;

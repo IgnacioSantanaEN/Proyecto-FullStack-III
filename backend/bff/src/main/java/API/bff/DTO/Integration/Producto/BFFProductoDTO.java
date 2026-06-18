@@ -1,9 +1,9 @@
-package API.producto.DTO;
+package API.bff.DTO.Integration.Producto;
 
 import lombok.Data;
 
 @Data
-public class CreateProductoDTO {
+public class BFFProductoDTO {
     private String name;
     private String sku;
     private String categoria;

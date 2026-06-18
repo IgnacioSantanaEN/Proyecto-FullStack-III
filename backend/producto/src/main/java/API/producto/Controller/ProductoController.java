@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import API.producto.DTO.CreateProductoDTO;
 import API.producto.DTO.ProductoDTO;
 import API.producto.Service.ProductoService;
 
@@ -39,11 +37,8 @@ public class ProductoController {
     }
 
     @GetMapping
-    public List<ProductoDTO> listAll(
-            @RequestParam(required = false) Integer userId,
-            @RequestParam(required = false) String role
-    ) {
-        return service.getAll(userId, role);
+    public List<ProductoDTO> getAll() {
+        return service.getAll();
     }
 
     @GetMapping("/{id}")
@@ -51,12 +46,9 @@ public class ProductoController {
         return service.getById(id);
     }
 
-        @PostMapping
-        public ResponseEntity<ProductoDTO> create(
-            @RequestBody CreateProductoDTO dto,
-            @RequestParam Integer userId
-        ) {
-        ProductoDTO created = service.create(dto, userId);
+    @PostMapping
+    public ResponseEntity<ProductoDTO> create(@RequestBody ProductoDTO dto) {
+        ProductoDTO created = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 

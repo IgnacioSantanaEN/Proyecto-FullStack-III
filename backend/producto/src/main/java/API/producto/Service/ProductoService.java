@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import API.producto.DTO.CreateProductoDTO;
 import API.producto.DTO.ProductoDTO;
 import API.producto.Model.Producto;
 import API.producto.Repository.ProductoRepository;
@@ -24,18 +23,24 @@ public class ProductoService {
     }
 
     // Método para obtener todos los productos, con filtrado por usuario y rol
-    public List<ProductoDTO> getAll(Integer userId, String role) {
-        List<Producto> productos;
-        if (role != null && role.equalsIgnoreCase("admin")) {
-            productos = repository.findAll();
-        } else if (userId != null) {
-            productos = repository.findByOwnerId(userId);
-        } else {
-            productos = repository.findAll();
-        }
+    public List<ProductoDTO> getAll() {
+        List<Producto> productos = repository.findAll();
+   
         return productos.stream()
                 .map(ProductoMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    // MÉTODO POST: Crear un producto siguiendo tu lógica de DTOs sin ID
+    public ProductoDTO create(ProductoDTO dto) {
+        // 1. El mapper convierte los campos del DTO a la entidad Producto
+        Producto productoEntity = ProductoMapper.toEntity(dto);
+        
+        // 2. Se envía a la base de datos
+        Producto saved = repository.save(productoEntity);
+        
+        // 3. Convertimos la entidad guardada de vuelta a DTO
+        return ProductoMapper.toDTO(saved);
     }
 
     // Método para obtener un producto por su ID
@@ -43,14 +48,6 @@ public class ProductoService {
         Producto p = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
         return ProductoMapper.toDTO(p);
-    }
-
-    // Método para crear un nuevo producto usando CreateProductoDTO
-    public ProductoDTO create(CreateProductoDTO dto, Integer userId) {
-        Producto p = ProductoMapper.toEntity(dto);
-        p.setOwnerId(userId);
-        Producto saved = repository.save(p);
-        return ProductoMapper.toDTO(saved);
     }
 
     // Método para actualizar un producto existente por su ID
