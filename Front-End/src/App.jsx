@@ -1,75 +1,102 @@
 import React, { useState } from 'react';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Usuario from './pages/Usuario';
+import RegistroUsuario from './pages/RegistroUsuario';
+// 🌟 LÍNEA NUEVA: Importamos el componente de salud corporativa
+import HealthCheck from './components/HealthCheck'; 
 
 function App() {
-  const [resultado, setResultado] = useState(null);
-  const [errorStatus, setErrorStatus] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [currentView, setCurrentView] = useState('login'); 
 
-  const probarBffDirecto = async () => {
-    setLoading(true);
-    setResultado(null);
-    setErrorStatus(null);
-    
-    try {
-      // Apuntamos directo al endpoint que funcionó en Postman
-      const response = await fetch('http://localhost:8086/api/bff/usuario', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const data = await response.json();
-      setResultado(`¡ÉXITO! Conexión establecida. Respuesta: ${JSON.stringify(data)}`);
-    } catch (err) {
-      setErrorStatus(
-        `❌ ERROR DE RED EN EL NAVEGADOR\n\n` +
-        `Si Postman responde pero aquí se corta al instante con 'Failed to fetch', ` +
-        `es una confirmación del 100% de que el navegador está bloqueando la petición por CORS.\n\n` +
-        `Mensaje interno: ${err.message}`
-      );
-    } finally {
-      setLoading(false);
-    }
+  const handleLoginSuccess = (usuarioLogueado) => {
+    setUser(usuarioLogueado);
+    setCurrentView('dashboard'); 
   };
 
+  const handleLogout = () => {
+    setUser(null);
+    setCurrentView('login'); 
+  };
+
+  // ====================================================
+  // 🛡️ MODULO PRIVADO (SESIÓN INICIADA Y ACTIVA) =======
+  // ====================================================
+  if (user) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white font-sans selection:bg-cyan-500/30">
+        
+        {/* Barra de Navegación Superior */}
+        <nav className="bg-slate-800 p-4 flex justify-between border-b border-slate-700 shadow-xl items-center sticky top-0 z-50">
+          <div className="flex items-center space-x-6">
+            <span 
+              onClick={() => setCurrentView('dashboard')} 
+              className="text-cyan-400 font-bold text-lg tracking-wider cursor-pointer active:scale-95 transition-transform"
+            >
+              🏪 SISTEMA BFF
+            </span>
+            <button 
+              onClick={() => setCurrentView('dashboard')} 
+              className={`text-xs font-bold tracking-wide uppercase transition-colors ${currentView === 'dashboard' ? 'text-cyan-400' : 'text-slate-400 hover:text-slate-200'}`}
+            >
+              Dashboard
+            </button>
+            <button 
+              onClick={() => setCurrentView('usuarios')} 
+              className={`text-xs font-bold tracking-wide uppercase transition-colors ${currentView === 'usuarios' || currentView === 'crear-usuario' ? 'text-cyan-400' : 'text-slate-400 hover:text-slate-200'}`}
+            >
+              Usuarios
+            </button>
+          </div>
+          
+          {/* Zona Derecha de la barra superior */}
+          <div className="flex items-center space-x-4">
+            
+            {/* 🌟 LÍNEA NUEVA: Aquí queda insertado el botón de HealthCheck */}
+            <HealthCheck />
+
+            {/* Tag Dinámico del Rol actual */}
+            <span className="text-[10px] bg-slate-700 px-3 py-1 rounded-xl text-slate-300 font-mono uppercase tracking-wider border border-slate-600">
+              {user.role || user.rol || 'usuario'}
+            </span>
+            <button 
+              onClick={handleLogout} 
+              className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-xl border border-red-500/20 font-semibold tracking-wide transition-all active:scale-95"
+            >
+              Cerrar Sesión
+            </button>
+          </div>
+        </nav>
+
+        {/* Zona Dinámica de Inyección de Módulos */}
+        <main className="p-6 max-w-5xl mx-auto min-h-[calc(100vh-73px)] flex flex-col justify-between">
+          <div className="w-full">
+            {currentView === 'dashboard' && <Dashboard user={user} />}
+            {currentView === 'usuarios' && <Usuario user={user} onNavigate={(v) => setCurrentView(v)} />}
+            {currentView === 'crear-usuario' && <RegistroUsuario onNavigate={(v) => setCurrentView(v)} />}
+          </div>
+          
+          <footer className="text-center text-[11px] text-slate-600 pt-12 font-mono">
+            Arquitectura de Microservicios Unificada • Backend for Frontend (BFF) Activo
+          </footer>
+        </main>
+      </div>
+    );
+  }
+
+  // ====================================================
+  // 🌐 MODULO PÚBLICO (ACCESO Y REGISTRO INICIAL) ======
+  // ====================================================
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 font-sans">
-      <div className="w-full max-w-lg bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-2xl space-y-6">
-        
-        <div className="text-center">
-          <span className="text-3xl">🧪</span>
-          <h1 className="text-2xl font-bold text-cyan-400 mt-2">Diagnóstico de Red Unificado</h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Validando si el navegador web tiene permitido hablar con el BFF.
-          </p>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-700/50 rounded-xl p-4 text-xs text-slate-400 space-y-1">
-          <p><strong>Método:</strong> <span className="text-emerald-400 font-mono">GET</span></p>
-          <p><strong>Endpoint:</strong> <span className="text-slate-300 font-mono">http://localhost:8086/api/bff/usuario</span></p>
-        </div>
-
-        <button 
-          onClick={probarBffDirecto}
-          disabled={loading}
-          className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 text-slate-950 font-semibold py-3 px-4 rounded-xl transition-all shadow-lg text-sm"
-        >
-          {loading ? 'Conectando...' : '🚀 Lanzar Petición Física'}
-        </button>
-
-        {resultado && (
-          <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-4 rounded-xl text-sm font-medium animate-fadeIn">
-            {resultado}
-          </div>
+    <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4 font-sans selection:bg-cyan-500/30">
+      <div className="w-full max-w-md">
+        {currentView === 'login' && (
+          <Login onLoginSuccess={handleLoginSuccess} onNavigate={(v) => setCurrentView(v)} />
         )}
-
-        {errorStatus && (
-          <div className="bg-red-500/10 border border-red-500/30 text-orange-200 p-4 rounded-xl text-xs font-mono whitespace-pre-line border-l-4 border-l-orange-500">
-            {errorStatus}
-          </div>
+        {currentView === 'registro-inicial' && (
+          <RegistroUsuario onNavigate={(v) => setCurrentView(v)} />
         )}
-        
       </div>
     </div>
   );

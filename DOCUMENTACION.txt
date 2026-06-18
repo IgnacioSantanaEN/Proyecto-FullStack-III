@@ -1,0 +1,4 @@
+http://localhost:8084/swagger-ui/index.html = PEDIDO
+http://localhost:8083/swagger-ui/index.html = PRODUCTO
+http://localhost:8082/swagger-ui/index.html = USUARIO
+http://localhost:8085 = PHPMYADMIN ( db, root, root )
