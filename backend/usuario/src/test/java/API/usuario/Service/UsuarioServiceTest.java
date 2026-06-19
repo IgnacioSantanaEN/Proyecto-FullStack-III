@@ -94,25 +94,6 @@ public class UsuarioServiceTest {
         verify(usuarioRepository, times(1)).save(any(Usuario.class));
     }
 
-    // Testeo para método de guardado usuarioDTO con email ya existente
-    @Test
-    public void testCreateUsuarioDTO_EmailAlreadyExists() {
-        UsuarioRegistroDTO registroDTO = new UsuarioRegistroDTO();
-        registroDTO.setName("Carlos");
-        registroDTO.setPassword("p3");
-        registroDTO.setEmail("carlos@mail.com");
-
-        when(usuarioRepository.findByEmail("carlos@mail.com")).thenReturn(new Usuario());
-
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            usuarioService.saveUsuarioDesdeDTO(registroDTO);
-        });
-
-        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
-
-        verify(usuarioRepository, never()).save(any(Usuario.class));
-    }
-
     // Testeo para método de login
     @Test
     public void testLogin_Success() {

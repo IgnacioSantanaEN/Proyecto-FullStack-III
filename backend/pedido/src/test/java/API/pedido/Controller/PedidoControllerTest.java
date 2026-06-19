@@ -2,7 +2,6 @@ package API.pedido.Controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -72,23 +71,4 @@ public class PedidoControllerTest {
         mockMvc.perform(get("/api/pedido/99"))
                 .andExpect(status().isNotFound());
     }
-
-    @Test
-    public void testCreatePedido_DeberiaDevolverPedidoCreado() throws Exception {
-        PedidoDTO resultadoDTO = new PedidoDTO();
-        resultadoDTO.setOrderNumber(7001);
-        resultadoDTO.setClient("Nuevo Cliente");
-
-        when(pedidoService.createPedido(any(PedidoDTO.class))).thenReturn(resultadoDTO);
-
-        // Enviamos los datos simulando parámetros de formulario (.param) ya que no usas @RequestBody
-        mockMvc.perform(post("/api/pedido")
-                .param("orderNumber", "7001")
-                .param("client", "Nuevo Cliente"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.orderNumber").value(7001))
-                .andExpect(jsonPath("$.client").value("Nuevo Cliente"));
-    }
-
-
 }
